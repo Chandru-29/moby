@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / compiled files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.swp
+*.bak
+*~
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+
+# Test related files
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Jupyter Notebook specific files
+.ipynb_checkpoints/
+
+# Miscellaneous
+*.log
+*.sqlite3
+*.db
