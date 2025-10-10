@@ -1,0 +1,59 @@
+sources:
+  my-mssql-source:
+    kind: mssql
+    host: 3.111.38.225
+    port: 1433
+    database: swms
+    user: sa
+    password: "********"
+
+tools:
+  search-items:
+    kind: mssql-sql
+    source: my-mssql-source
+    description: Search for items based on name.
+    parameters:
+      - name: name
+        type: string
+        description: The name of the item.
+    statement: SELECT * FROM item WHERE itemcode LIKE '%' + @name + '%';
+  search-hotels-by-name:
+    kind: mssql-sql
+    source: my-mssql-source
+    description: Search for hotels based on name.
+    parameters:
+      - name: name
+        type: string
+        description: The name of the hotel.
+    statement: SELECT * FROM hotels WHERE name LIKE '%' + @name + '%';
+    password: "Mobillor@2021"
+
+  search-hotels-by-location:
+    kind: mssql-sql
+    source: my-mssql-source
+    description: Search for hotels based on location. Result is sorted by price from least to most expensive.
+    parameters:
+      - name: location
+        type: string
+        description: The location of the hotel.
+    statement: |
+      SELECT *
+      FROM hotels
+      WHERE location LIKE '%' + @location + '%'
+      ORDER BY
+        CASE price_tier
+          WHEN 'Midscale' THEN 1
+          WHEN 'Upper Midscale' THEN 2
+          WHEN 'Upscale' THEN 3
+          WHEN 'Upper Upscale' THEN 4
+          WHEN 'Luxury' THEN 5
+          ELSE 99
+        END;
+
+toolsets:
+  my_first_toolset:
+    - search-hotels-by-name
+    - search-hotels-by-location
+  sql-toolset:
+    - search-items
+ 

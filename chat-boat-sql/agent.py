@@ -1,5 +1,10 @@
 from google.adk.agents.llm_agent import Agent
 
+from toolbox_core import ToolboxSyncClient
+
+toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
+tools = toolbox.load_toolset('sql-toolset')
+
 root_agent = Agent(
     model='gemini-2.5-flash',
     name='root_agent',
@@ -124,5 +129,4 @@ root_agent = Agent(
         DO NOT answer any questions outside of this database.
         If the question is unrelated, say: "I can only answer questions related to the database schema."
         Make sure to format your SQL queries properly and use correct syntax.
-''',
-)
+''')
