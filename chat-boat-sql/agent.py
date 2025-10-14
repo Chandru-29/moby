@@ -8,15 +8,14 @@ tools = toolbox.load_toolset('sql-toolset')
 root_agent = Agent(
     model='gemini-2.5-flash',
     name='root_agent',
-    description='A helpful assistant for user questions.',
-    instruction='''You are a SQL assistant. You are only allowed to generate SQL queries that relate to the schema below.
-- Do NOT answer questions unrelated to the schema.
-- If asked something outside the schema, respond with: "I can only help with SQL queries related to the schema provided."
-- Do not guess or make up fields or tables.
-- Only use the tables and columns explicitly defined in the schema.
-- Ask counter questions if the user query is ambiguous or lacks details. Counter questions should be concise and to the point
--- DATABASE SCHEMA
-`
+    description='A helpful assistant that can understand user questions and query the MSSQL database (read-only).',
+    instruction=''' You are a SQL assistant that interacts with a MSSQL database.
+                    You must only generate safe, read-only SQL queries (i.e., SELECT queries).
+                    Do NOT generate or execute any queries that modify data such as UPDATE, DELETE, INSERT, DROP, ALTER, or TRUNCATE.
+                    If the user asks for such an operation, respond with:
+                    "I am restricted to read-only access and cannot modify the database."
+                    If the query is ambiguous, ask a short clarifying question.
+    DB Schema - 
         -- Table 1: dbo.ITEM (Master Item Data)
         -- PRIMARY KEY: itemId
         -- UNIQUE KEY: itemCode
@@ -122,11 +121,52 @@ root_agent = Agent(
         -- IMPORTANT RELATIONSHIPS FOR JOINING:
         -- SULOCATION.skuId joins SKUITEM.skuId
         -- SULOCATION.locationId joins LOCATION.locationId
-        -- SKUITEM.itemId joins ITEM.itemId
-`
+        -- SKUITEM.itemId joins ITEM.itemId ''',
 
-        NOTE: You should ONLY generate SQL queries based on this schema.
-        DO NOT answer any questions outside of this database.
-        If the question is unrelated, say: "I can only answer questions related to the database schema."
-        Make sure to format your SQL queries properly and use correct syntax.
-''')
+    tools=tools,
+)
+
+def is_safe_sql(sql_text: str) -> bool:
+    """
+    Check if SQL is safe (only SELECT or WITH queries).
+    """
+    forbidden = ["UPDATE", "DELETE", "DROP", "INSERT", "ALTER", "TRUNCATE"]
+    sql_upper = sql_text.strip().upper()
+
+    # Allow only SELECT or WITH queries
+    if sql_upper.startswith("SELECT") or sql_upper.startswith("WITH"):
+        # Ensure no forbidden keywords appear later in the query
+        return not any(word in sql_upper for word in forbidden)
+    return False
+
+def handle_user_input(user_query: str):
+    # Step 1: Ask the LLM to generate SQL query
+    response = root_agent.generate(user_query)
+    sql_text = response.text.strip()
+
+    print("\n Generated SQL Query:")
+    print(sql_text)
+
+    # Step 2: Security check before execution
+    if not is_safe_sql(sql_text):
+        print("\n Unsafe query detected! Only SELECT queries are allowed.")
+        print("The agent will not execute this command.")
+        return
+
+    # Step 3: Execute SQL
+    try:
+        sql_tool = tools['execute-sql']
+        db_result = sql_tool.run({"query": sql_text})
+        print("\n Database Result:")
+        print(db_result)
+    except Exception as e:
+        print("\n Error executing SQL query:", e)
+
+
+if __name__ == "__main__":
+    print("Chat-Bot SQL Agent started (Read-Only Mode). Type 'exit' to quit.\n")
+    while True:
+        user_query = input("You: ")
+        if user_query.lower() in ["exit", "quit"]:
+            break
+        handle_user_input(user_query)

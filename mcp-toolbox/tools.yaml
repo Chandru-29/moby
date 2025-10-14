@@ -5,18 +5,30 @@ sources:
     port: 1433
     database: swms
     user: sa
-    password: "********"
+    password: "Mobillor@2021"
 
 tools:
   search-items:
     kind: mssql-sql
     source: my-mssql-source
-    description: Search for items based on name.
+    description: Search for items based on item code or description.
     parameters:
       - name: name
         type: string
         description: The name of the item.
-    statement: SELECT * FROM item WHERE itemcode LIKE '%' + @name + '%';
+    statement: SELECT * FROM dbo.ITEM WHERE itemCode LIKE '%' + @name + '%' OR itemDescription LIKE '%' + @name + '%';
+
+  execute-sql:
+    kind: mssql-sql
+    source: my-mssql-source
+    description: Execute any safe (read-only) SQL query dynamically on MSSQL.
+    parameters:
+      - name: query
+        type: string
+        description: The SQL query to execute. Must start with SELECT.
+    statement: |
+      EXEC(@query);
+
   search-hotels-by-name:
     kind: mssql-sql
     source: my-mssql-source
@@ -26,7 +38,6 @@ tools:
         type: string
         description: The name of the hotel.
     statement: SELECT * FROM hotels WHERE name LIKE '%' + @name + '%';
-    password: "Mobillor@2021"
 
   search-hotels-by-location:
     kind: mssql-sql
@@ -51,9 +62,12 @@ tools:
         END;
 
 toolsets:
+
+  sql-toolset:
+    - execute-sql
+    - search-items
+
   my_first_toolset:
     - search-hotels-by-name
     - search-hotels-by-location
-  sql-toolset:
-    - search-items
  
