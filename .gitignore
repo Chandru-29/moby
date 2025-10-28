@@ -35,4 +35,4 @@ htmlcov/
 *.db
 
 #Toolbox specific
-mcp-toolbox/toolbox
+mcp-toolbox/toolbox.exe
