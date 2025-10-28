@@ -15,6 +15,9 @@ root_agent = Agent(
                     If the user asks for such an operation, respond with:
                     "I am restricted to read-only access and cannot modify the database."
                     If the query is ambiguous, ask a short clarifying question.
+                    Don't use any table query that get the list of tables in the database.
+                    Put a hard limit of 100 rows in the SQL query using "TOP 100" to avoid large data retrieval.
+                    
     DB Schema - 
         -- Table 1: dbo.ITEM (Master Item Data)
         -- PRIMARY KEY: itemId
@@ -117,6 +120,39 @@ root_agent = Agent(
         [isGrouped] [bit] NULL,
         [kittingType] [int] NULL,
         );
+        CREATE TABLE SWMS.dbo.GRN (
+        [grnId] [int] IDENTITY(1,1) NOT NULL,
+        [grnNumber] [varchar(45)] COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        [grnLineNumber] varchar(45) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        [asnCode] varchar(45) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        [vendorCode] varchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [vendorName] varchar(45) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [itemCode] varchar(45) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        [qty] float NULL,
+        [mfgDate] datetime NULL,
+        [grnDate] datetime NULL,
+        [batchNumber] varchar(45) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        [serialNumber] varchar(45) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [lotNumber] varchar(45) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [isPrinted] int DEFAULT 0 NOT NULL,
+        [isDeleted] int DEFAULT 0 NULL,
+        cd datetime DEFAULT getdate() NOT NULL,
+        ud datetime DEFAULT getdate() NOT NULL,
+        cdBy varchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        udBy varchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [movement] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [plant] varchar(10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [documentHeaderText] varchar(10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [qaStatus] varchar(10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [storageLocation] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [expiryDate] datetime NULL,
+        [oldGrnNumber] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [uom] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        [isCancelled] int DEFAULT 0 NULL,
+        CONSTRAINT PK__GRN__1E692CB8EB118ED6 PRIMARY KEY (grnId),
+        CONSTRAINT UQ__GRN__1E692CB9A94C2666 UNIQUE (grnId),
+        CONSTRAINT UQ__GRN__75998F03F9837176 UNIQUE (grnNumber,grnLineNumber),
+        CONSTRAINT UQ__GRN__A53913494DBC9A86 UNIQUE (grnNumber,grnLineNumber,itemCode,batchNumber)
 
         -- IMPORTANT RELATIONSHIPS FOR JOINING:
         -- SULOCATION.skuId joins SKUITEM.skuId

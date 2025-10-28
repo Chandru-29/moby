@@ -27,7 +27,9 @@ tools:
         type: string
         description: The SQL query to execute. Must start with SELECT.
     statement: |
-      EXEC(@query);
+      DECLARE @stmt NVARCHAR(MAX) = @query;
+      -- Still executes a batch; rely on app-side guards to ensure single, read-only statements
+      EXEC sp_executesql @stmt;
 
   search-hotels-by-name:
     kind: mssql-sql
