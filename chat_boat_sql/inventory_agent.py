@@ -5,9 +5,10 @@ from toolbox_core import ToolboxSyncClient
 toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
 tools = toolbox.load_toolset('sql-toolset')
 
-root_agent = Agent(
+inventory_agent = Agent( 
+    
     model='gemini-2.5-flash',
-    name='root_agent',
+    name='inventory_agent',
     description='A helpful assistant that can understand user questions and query the MSSQL database (read-only).',
     instruction=''' You are a SQL assistant that interacts with a MSSQL database.
                     You must only generate safe, read-only SQL queries (i.e., SELECT queries).
@@ -18,7 +19,7 @@ root_agent = Agent(
                     Don't use any table query that get the list of tables in the database.
                     Put a hard limit of 100 rows in the SQL query using "TOP 100" to avoid large data retrieval.
                     
-    DB Schema - 
+      DB Schema - 
         -- Table 1: dbo.ITEM (Master Item Data)
         -- PRIMARY KEY: itemId
         -- UNIQUE KEY: itemCode
@@ -159,50 +160,7 @@ root_agent = Agent(
         -- SULOCATION.locationId joins LOCATION.locationId
         -- SKUITEM.itemId joins ITEM.itemId ''',
 
-    tools=tools,
+    tools=tools,   # type: ignore
 )
 
-def is_safe_sql(sql_text: str) -> bool:
-    """
-    Check if SQL is safe (only SELECT or WITH queries).
-    """
-    forbidden = ["UPDATE", "DELETE", "DROP", "INSERT", "ALTER", "TRUNCATE"]
-    sql_upper = sql_text.strip().upper()
 
-    # Allow only SELECT or WITH queries
-    if sql_upper.startswith("SELECT") or sql_upper.startswith("WITH"):
-        # Ensure no forbidden keywords appear later in the query
-        return not any(word in sql_upper for word in forbidden)
-    return False
-
-def handle_user_input(user_query: str):
-    # Step 1: Ask the LLM to generate SQL query
-    response = root_agent.generate(user_query)
-    sql_text = response.text.strip()
-
-    print("\n Generated SQL Query:")
-    print(sql_text)
-
-    # Step 2: Security check before execution
-    if not is_safe_sql(sql_text):
-        print("\n Unsafe query detected! Only SELECT queries are allowed.")
-        print("The agent will not execute this command.")
-        return
-
-    # Step 3: Execute SQL
-    try:
-        sql_tool = tools['execute-sql']
-        db_result = sql_tool.run({"query": sql_text})
-        print("\n Database Result:")
-        print(db_result)
-    except Exception as e:
-        print("\n Error executing SQL query:", e)
-
-
-if __name__ == "__main__":
-    print("Chat-Bot SQL Agent started (Read-Only Mode). Type 'exit' to quit.\n")
-    while True:
-        user_query = input("You: ")
-        if user_query.lower() in ["exit", "quit"]:
-            break
-        handle_user_input(user_query)

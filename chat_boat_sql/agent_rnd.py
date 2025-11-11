@@ -39,5 +39,5 @@ root_agent = Agent(
         [userId] [uniqueidentifier] NULL,
         );
        ,''',
-    tools=tools,
+    tools=tools, # type: ignore
 )
