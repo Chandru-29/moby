@@ -17,78 +17,79 @@ movement_agent = Agent(
                     "I am restricted to read-only access and cannot modify the database."
                     If the query is ambiguous, ask a short clarifying question.
                     Don't use any table query that get the list of tables in the database.
-                    Put a hard limit of 100 rows in the SQL query using "TOP 100" to avoid large data retrieval.
+                    Put a hard limit of 50 rows in the SQL query using "TOP 50" to avoid large data retrieval.
+                    
                     
     DB Schema - 
         -- Table 1: dbo.ITEM (Master Item Data)
         -- PRIMARY KEY: itemId
         -- UNIQUE KEY: itemCode
         CREATE TABLE dbo.ITEM (
-            itemId [int] IDENTITY(1,1) NOT NULL,
-        [itemCode] [varchar](45) NOT NULL,
-        [itemTypeId] [int] NOT NULL,
-        [itemDescription] [varchar](200) NULL,
-        [itemGroup] [varchar](45) NULL,
-        [uom] [varchar](45) NOT NULL,
-        [issueType] [varchar](45) NULL,
-        [status] [int] NOT NULL,
-        [procurementType] [varchar](45) NULL,
-        [shelfLife] [int] NULL,
-        [isDeleted] [int] NULL,
-        [cd] [datetime] NOT NULL,
-        [ud] [datetime] NOT NULL,
-        [cdBy] [varchar](100) NULL,
-        [udBy] [varchar](100) NULL,
-        [movementType] [varchar](45) NULL,
-        [controlType] [int] NOT NULL,
-        [weight] [int] NOT NULL,
-        [kittingType] [int] NOT NULL,
-        [qaRequired] [varchar](50) NULL,
-        [userId] [uniqueidentifier] NULL,
+            itemId
+        [itemCode] 
+        [itemTypeId] 
+        [itemDescription]
+        [itemGroup]
+        [uom] 
+        [issueType] 
+        [status] 
+        [procurementType] 
+        [shelfLife]
+        [isDeleted] 
+        [cd] [datetime] 
+        [ud] [datetime] 
+        [cdBy] 
+        [udBy] 
+        [movementType] 
+        [controlType]
+        [weight] 
+        [kittingType] 
+        [qaRequired] 
+        [userId] 
         );
 
         -- Table 2: dbo.SKUITEM (Stock Keeping Unit / GRN Data)
         -- PRIMARY KEY: skuId
         -- FOREIGN KEY: itemId REFERENCES dbo.ITEM(itemId)
         CREATE TABLE dbo.SKUITEM (
-        [skuId] [int] IDENTITY(1,1) NOT NULL,
-        [sku] [varchar](45) NOT NULL,
-        [grnNumber] [varchar](45) NOT NULL,
-        [grnLineNumber] [varchar](45) NOT NULL,
-        [asnCode] [varchar](45) NULL,
-        [vendorCode] [varchar](200) NULL,
-        [vendorName] [varchar](45) NULL,
-        [itemId] [int] NOT NULL,
-        [qty] [float] NOT NULL,
-        [mfgDate] [datetime] NULL,
-        [lotNumber] [varchar](45) NULL,
-        [serialNumber] [varchar](45) NULL,
-        [uom] [varchar](45) NOT NULL,
-        [isDeleted] [int] NULL,
-        [cd] [datetime] NOT NULL,
-        [ud] [datetime] NOT NULL,
-        [cdBy] [varchar](100) NULL,
-        [udBy] [varchar](100) NULL,
+        [skuId] 
+        [sku] 
+        [grnNumber] 
+        [grnLineNumber] 
+        [asnCode] 
+        [vendorCode] 
+        [vendorName] 
+        [itemId]
+        [qty]
+        [mfgDate] 
+        [lotNumber] 
+        [serialNumber] 
+        [uom] 
+        [isDeleted] 
+        [cd] 
+        [ud] [datetime]
+        [cdBy] [varchar]
+        [udBy] [varchar]
         );
 
         -- Table 3: dbo.LOCATION (Warehouse Locations)
         -- PRIMARY KEY: locationId
         -- UNIQUE KEY: locationCode
         CREATE TABLE dbo.LOCATION (
-        [locationId] [int] IDENTITY(1,1) NOT NULL,
-        [locationCode] [varchar](100) NOT NULL,
-        [locationName] [varchar](100) NOT NULL,
-        [parentId] [int] NOT NULL,
-        [parentCode] [varchar](45) NULL,
-        [isLocation] [int] NOT NULL,
-        [rltId] [int] NOT NULL,
-        [status] [int] NOT NULL,
-        [isEmpty] [int] NOT NULL,
-        [isDeleted] [int] NULL,
-        [cd] [datetime] NOT NULL,
-        [ud] [datetime] NOT NULL,
-        [cdBy] [varchar](100) NULL,
-        [udBy] [varchar](100) NULL,
+        [locationId] 
+        [locationCode] 
+        [locationName] 
+        [parentId] 
+        [parentCode] 
+        [isLocation] 
+        [rltId] 
+        [status] 
+        [isEmpty] 
+        [isDeleted] 
+        [cd] [datetime] 
+        [ud] [datetime] 
+        [cdBy] 
+        [udBy] 
         );
 
         -- Table 4: dbo.SULOCATION (Stock Unit Location - Where the SKUs actually are)
@@ -96,148 +97,202 @@ movement_agent = Agent(
         -- FOREIGN KEY 1: skuId REFERENCES dbo.SKUITEM(skuId)
         -- FOREIGN KEY 2: locationId REFERENCES dbo.LOCATION(locationId)
         CREATE TABLE dbo.SULOCATION (
-            [suidId] [int] IDENTITY(1,1) NOT NULL,
-        [suid] [varchar](45) NOT NULL,
-        [skuId] [int] NOT NULL,
-        [qty] [float] NULL,
-        [locationId] [int] NOT NULL,
-        [palletId] [int] NULL,
-        [binId] [int] NULL,
-        [isDeleted] [int] NULL,
-        [cd] [datetime] NOT NULL,
-        [ud] [datetime] NOT NULL,
-        [cdBy] [varchar](100) NULL,
-        [udBy] [varchar](100) NULL,
-        [inTransit] [tinyint] NOT NULL,
-        [picklistId] [int] NULL,
-        [isAllocated] [tinyint] NULL,
-        [status] [int] NOT NULL,
-        [rejectionReason] [varchar](225) NULL,
-        [documentId] [int] NULL,
-        [onHold] [tinyint] NOT NULL,
-        [tempAssetId] [int] NULL,
-        [grnLineNumber] [int] NULL,
-        [serialNumber] [varchar](50) NULL,
-        [isGrouped] [bit] NULL,
-        [kittingType] [int] NULL,
+            [suidId] 
+        [suid] 
+        [skuId] 
+        [qty] 
+        [locationId] 
+        [palletId] 
+        [binId] 
+        [isDeleted] 
+        [cd] [datetime] 
+        [ud] [datetime] 
+        [cdBy] 
+        [udBy] 
+        [inTransit] 
+        [picklistId] 
+        [isAllocated] 
+        [status] 
+        [rejectionReason] 
+        [documentId] 
+        [onHold] 
+        [tempAssetId] 
+        [grnLineNumber] 
+        [serialNumber] 
+        [isGrouped] 
+        [kittingType] 
         );
 
 
         Table 5: dbo.FGMODEL (Finished Goods Model)
     CREATE TABLE dbo.FGMODEL (
-        fgModelId INT IDENTITY(1,1) PRIMARY KEY,
-        fgModelCode VARCHAR(45) NOT NULL,
-        fgModelName VARCHAR(45) NOT NULL,
-        itemId INT NOT NULL,
-        isDeleted TINYINT DEFAULT 0,
-        cd DATETIME2 NOT NULL DEFAULT GETDATE(),
-        ud DATETIME2 NULL,
-        cdBy VARCHAR(45),
-        udBy VARCHAR(45)
+        fgModelId 
+        fgModelCode 
+        fgModelName 
+        itemId
+        isDeleted 
+        cd DATETIME2 
+        ud DATETIME2
+        cdBy 
+        udBy 
     );
 
     -- Table 6: dbo.ITEMLOCACNMAP (Item-Location Mapping)
     CREATE TABLE dbo.ITEMLOCACNMAP (
-        itemLocAcnMapId INT IDENTITY(1,1) PRIMARY KEY,
-        categoryId INT NOT NULL,
-        itemId INT NOT NULL,
-        warehouseId INT NOT NULL,
-        locationId INT NULL,
-        acnId INT NOT NULL,
-        zoneId INT NULL,
-        sectionId INT NULL,
-        rackId INT NULL,
-        isDeleted INT DEFAULT 0,
-        cd DATETIME DEFAULT GETDATE(),
-        ud DATETIME DEFAULT GETDATE(),
-        [cdBy] [varchar](100) NULL,
-	    [udBy] [varchar](100) NULL
+        itemLocAcnMapId 
+        categoryId
+        itemId 
+        warehouseId 
+        locationId 
+        acnId 
+        zoneId
+        sectionId 
+        rackId  
+        isDeleted 
+        cd DATETIME  
+        ud DATETIME  (),
+        [cdBy]
+	    [udBy] 
     );
 
     -- Table 7: dbo.FGTRANSACTION (Finished Goods Movement / Putaway)
     CREATE TABLE dbo.FGTRANSACTION (
-        fgTransactionId INT IDENTITY(1,1) PRIMARY KEY,
-        fgCode VARCHAR(40) NOT NULL,
-        vin VARCHAR(40) NOT NULL,
-        sNo VARCHAR(40) NOT NULL,
-        putawayTime DATETIME NULL,
-        suidId INT NULL,
-        isSFG INT DEFAULT 0,
-        isPutaway INT DEFAULT 0,
-        isDelivered INT DEFAULT 0,
-        locationId INT DEFAULT 0,
-        isVinHold INT DEFAULT 0,
-        isAccepted INT DEFAULT 0,
-        isAccessed INT DEFAULT 0,
-        isDeleted TINYINT DEFAULT 0,
-        cd DATETIME2 DEFAULT GETDATE(),
-        ud DATETIME2 NULL,
-        cdBy VARCHAR(45),
-        udBy VARCHAR(45),
+        fgTransactionId 
+        fgCode 
+        vin 
+        sNo 
+        putawayTime  
+        suidId 
+        isSFG 
+        isPutaway 
+        isDelivered 
+        locationId 
+        isVinHold 
+        isAccepted 
+        isAccessed 
+        isDeleted 
+        cd DATETIME2 
+        ud DATETIME2 ,
+        cdBy 
+        udBy 
         isEol BIT DEFAULT 0
     );
 
     -- Table 8: dbo.SUIDACTIVITYLOG (Tracks SU Movements & Picklists)
     CREATE TABLE dbo.SUIDACTIVITYLOG (
-        suidActivityLogId INT IDENTITY(1,1) PRIMARY KEY,
-        suidId INT NOT NULL,
-        picklistId INT NULL,
-        status INT NOT NULL,
-        remark VARCHAR(500),
-        isDeleted INT DEFAULT 0,
-        cd DATETIME DEFAULT GETDATE(),
-        ud DATETIME DEFAULT GETDATE(),
-        cdBy VARCHAR(100),
-        udBy VARCHAR(100)
+        suidActivityLogId 
+        suidId 
+        picklistId 
+        status 
+        remark 
+        isDeleted 
+        cd DATETIME 
+        ud DATETIME
+        cdBy 
+        udBy 
     );
 
     -- Table 9: dbo.PICKLIST (Picklist Header)
     CREATE TABLE dbo.PICKLIST (
-        picklistId INT IDENTITY(1,1) PRIMARY KEY,
-        picklistCode VARCHAR(45) NOT NULL UNIQUE,
-        documentTypeId INT NOT NULL,
-        documentNumber VARCHAR(45) NOT NULL,
-        mvtId INT NOT NULL,
-        status INT DEFAULT 0,
-        assignedUser VARCHAR(45),
-        isDeleted INT DEFAULT 0,
-        cd DATETIME DEFAULT GETDATE(),
-        ud DATETIME DEFAULT GETDATE(),
-        cdBy VARCHAR(100),
-        udBy VARCHAR(100)
+        picklistId 
+        picklistCode 
+        documentTypeId 
+        documentNumber LL,
+        mvtId 
+        status 
+        assignedUser 
+        isDeleted 
+        cd DATETIME 
+        ud DATETIME 
+        cdBy 
+        udBy 
     );
 
     -- Table 10: dbo.PICKLISTITEM (Line items in a picklist)
     CREATE TABLE dbo.PICKLISTITEM (
-        picklistItemId INT IDENTITY(1,1) PRIMARY KEY,
-        picklistId INT NOT NULL,
-        itemId INT NOT NULL,
-        qty FLOAT NOT NULL,
-        source VARCHAR(45),
-        destination VARCHAR(45),
-        pickedQty FLOAT DEFAULT 0,
-        status INT DEFAULT 0,
-        isDeleted INT DEFAULT 0,
-        cd DATETIME DEFAULT GETDATE(),
-        ud DATETIME DEFAULT GETDATE(),
-        picklistViewExists INT DEFAULT 0
+        picklistItemId 
+        picklistId 
+        itemId 
+        qty 
+        source 
+        destination 
+        pickedQty 
+        status 
+        isDeleted 
+        cd DATETIME 
+        ud DATETIME 
+        picklistViewExists 
     );
 
     -- Table 11: dbo.PICKLISTVIEW (View of Picklist Items and SUIDs)
     CREATE TABLE dbo.PICKLISTVIEW (
-        picklistViewId INT IDENTITY(1,1) PRIMARY KEY,
-        picklistId INT NOT NULL,
-        itemId INT NOT NULL,
-        suidId INT NOT NULL,
-        suid VARCHAR(45) NOT NULL,
-        sourceLocId INT NOT NULL,
-        sourcePalletId INT NULL,
-        sourceBinId INT NULL,
-        status INT DEFAULT 0,
-        isDeleted INT DEFAULT 0,
-        cd DATETIME DEFAULT GETDATE(),
-        ud DATETIME DEFAULT GETDATE()
+        picklistViewId 
+        picklistId 
+        itemId 
+        suidId
+        suid 
+        sourceLocId 
+        sourcePalletId
+        sourceBinId 
+        status 
+        isDeleted 
+        cd DATETIME 
+        ud DATETIME 
     );
+
+
+
+      -- Table 12: dbo.GRN (Goods Receipt Note)
+        -- PRIMARY KEY: grnId
+        -- UNIQUE KEYS:
+        --   1) (grnNumber, grnLineNumber)
+        --   2) (grnNumber, grnLineNumber, itemCode, batchNumber)
+
+        CREATE TABLE [dbo].[GRN](
+            [grnId] 
+            [grnNumber] 
+            [grnLineNumber] 
+            [asnCode] 
+            [vendorCode] 
+            [vendorName] 
+            [itemCode] 
+            [qty] 
+            [mfgDate] 
+            [grnDate] 
+            [batchNumber] 
+            [serialNumber] 
+            [lotNumber] 
+            [isPrinted] 
+            [isDeleted] 
+            [cd] [datetime] 
+            [ud] [datetime] 
+            [cdBy] 
+            [udBy] 
+            [movement] 
+            [plant] 
+            [documentHeaderText] 
+            [qaStatus] 
+            [storageLocation] ,
+            [expiryDate] 
+            [oldGrnNumber] 
+            [uom] 
+            [isCancelled] 
+            );
+
+            -- Primary Key      
+            ALTER TABLE dbo.GRN
+            ADD CONSTRAINT PK_GRN PRIMARY KEY CLUSTERED (grnId);
+
+            -- Unique Key #1: GRN header-level uniqueness
+         ALTER TABLE dbo.GRN
+            ADD CONSTRAINT UQ_GRN_NumberLine UNIQUE (grnNumber, grnLineNumber);
+
+            -- Unique Key #2: GRN line + item + batch uniqueness
+            ALTER TABLE dbo.GRN
+            ADD CONSTRAINT UQ_GRN_NumberLineItemBatch 
+                UNIQUE (grnNumber, grnLineNumber, itemCode, batchNumber);
+
+     
 
     ============================
     KEY RELATIONSHIPS
@@ -252,12 +307,47 @@ movement_agent = Agent(
     -- PICKLISTVIEW.itemId → ITEM.itemId
     -- PICKLISTVIEW.suidId → SULOCATION.suidId
        
+        ========================================================
+    STATUS DEFINITIONS (USE THESE ALWAYS)
+    ========================================================
 
+    📌 PICKLIST & PICKLISTITEM status:
+    0 = Created
+    1 = Released
+    2 = Picking Started
+    3 = All Picked
+    4 = Putaway Started
+    5 = Putaway Completed
+
+    ✔ "Open Picklist" → status IN (1,2,3,4)
+    ✔ "Pending Picklist" → status IN (0,1)
+    ✔ "Picking in progress" → status = 2
+    ✔ "Picked" → status = 3
+    ✔ "Putaway pending" → status IN (3,4)
+    ✔ "Closed Picklist" → status = 5
+
+    📌 PICKLISTVIEW
+    2 = Created
+    3 = Picked
+    5 = Putaway Done
+
+    ✔ "Open picklist view" → status IN (2,3)
+    ✔ "Completed picklist view" → status = 5
+
+    📌 SULOCATION (movement)
+    0 = Inactive
+    1 = Active
+    2 = First Level Quarantine
+    3 = Second Level Quarantine / Scrapped
+    4 = First Level Rejection
+    5 = Second Level Rejection / Scrapped / RTV
+    6 = Unplanned Issue / Material Request
+
+    
  ''',
 
-    tools=tools,   # type: ignore
+    tools=tools,  
 )
-
 
 
 
