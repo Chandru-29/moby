@@ -1,3 +1,4 @@
+
 from google.adk.agents.llm_agent import Agent
 
 from toolbox_core import ToolboxSyncClient
@@ -5,12 +6,17 @@ from toolbox_core import ToolboxSyncClient
 toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
 tools = toolbox.load_toolset('sql-toolset')
 
+
+
+
 inventory_agent = Agent( 
     
     model='gemini-2.5-flash',
     name='inventory_agent',
+    # schema= compressed_schema ,
     description='A helpful assistant that can understand user questions and query the MSSQL database (read-only).',
     instruction=''' You are a SQL assistant that interacts with a MSSQL database.
+                    Never create any new table name by youself, always use the db schema provided.
                     You must only generate safe, read-only SQL queries (i.e., SELECT queries).
                     Do NOT generate or execute any queries that modify data such as UPDATE, DELETE, INSERT, DROP, ALTER, or TRUNCATE.
                     If the user asks for such an operation, respond with:
@@ -20,172 +26,153 @@ inventory_agent = Agent(
                     Don't use any table query that get the list of tables in the database.
                      Put a hard limit of 50 rows in the SQL query using "TOP 50" to avoid large data retrieval.
 
-      DB Schema - 
-        -- Table 1: dbo.ITEM (Master Item Data)
-        -- PRIMARY KEY: itemId
-        -- UNIQUE KEY: itemCode
-     dbo.ITEM (
-            itemId 
-        [itemCode] 
-        [itemTypeId]
-        [itemDescription] 
-        [itemGroup] 
-        [uom] 
-        [issueType] 
-        [status] 
-        [procurementType] 
-        [shelfLife]
-        [isDeleted]
-        [cd] 
-        [ud] 
-        [cdBy] 
-        [udBy] 
-        [movementType] 
-        [controlType]
-        [weight]
-        [kittingType] 
-        [qaRequired] 
-        [userId] 
-        );
-
-        -- Table 2: dbo.SKUITEM (Stock Keeping Unit / GRN Data)
-        -- PRIMARY KEY: skuId
-        -- FOREIGN KEY: itemId REFERENCES dbo.ITEM(itemId)
-        CREATE TABLE dbo.SKUITEM (
-        [skuId] 
-        [sku]
-        [grnNumber]
-        [grnLineNumber] 
-        [asnCode] 
-        [vendorCode] 
-        [vendorName] 
-        [itemId] 
-        [qty] 
-        [mfgDate] 
-        [lotNumber] 
-        [serialNumber] 
-        [uom] 
-        [isDeleted]     
-        [cd] 
-        [ud] 
-        [cdBy] 
-        [udBy] 
-        );
-
-        -- Table 3: dbo.LOCATION (Warehouse Locations)
-        -- PRIMARY KEY: locationId
-        -- UNIQUE KEY: locationCode
-        CREATE TABLE dbo.LOCATION (
-        [locationId] 
-        [locationCode]  
-        [locationName] 
-        [parentId]
-        [parentCode]  
-        [isLocation] 
-        [rltId]
-        [status] 
-        [isEmpty] 
-        [isDeleted]
-        [cd] 
-        [ud] 
-        [cdBy]  
-        [udBy]  
-        );
-
-        -- Table 4: dbo.SULOCATION (Stock Unit Location - Where the SKUs actually are)
-        -- PRIMARY KEY: suidId
-        -- FOREIGN KEY 1: skuId REFERENCES dbo.SKUITEM(skuId)
-        -- FOREIGN KEY 2: locationId REFERENCES dbo.LOCATION(locationId)
-        CREATE TABLE dbo.SULOCATION (
-            [suidId] 
-        [suid]  
-        [skuId] 
-        [qty]
-        [locationId] 
-        [palletId] 
-        [binId]
-        [isDeleted] 
-        [cd]
-        [ud]
-        [cdBy] 
-        [udBy] 
-        [inTransit]
-        [picklistId] 
-        [isAllocated] 
-        [status] 
-        [rejectionReason] 
-        [documentId]
-        [onHold] 
-        [tempAssetId]
-        [grnLineNumber]
-        [serialNumber] 
-        [isGrouped]
-        [kittingType] 
-        );
+     
         
-        -- Table: dbo.GRN (Goods Receipt Note)
-        -- PRIMARY KEY: grnId
-        -- UNIQUE KEYS:
-        --   1) (grnNumber, grnLineNumber)
-        --   2) (grnNumber, grnLineNumber, itemCode, batchNumber)
+   db schema:
 
-        CREATE TABLE [dbo].[GRN](
-            [grnId]
-            [grnNumber] 
-            [grnLineNumber] 
-            [asnCode] 
-            [vendorCode] 
-            [vendorName] 
-            [itemCode] 
-            [qty]
-            [mfgDate]
-            [grnDate] 
-            [batchNumber] 
-            [serialNumber] 
-            [lotNumber] 
-            [isPrinted] 
-            [isDeleted] 
-            [cd] 
-            [ud] 
-            [cdBy] 
-            [udBy] 
-            [movement] 
-            [plant] 
-            [documentHeaderText] 
-            [qaStatus] 
-            [storageLocation] 
-            [expiryDate] 
-            [oldGrnNumber]
-            [uom]
-            [isCancelled] 
-            );
+                       
+  "ITEM": {
+    "columns": [
+      "itemId PK",
+      "itemCode UNIQUE",
+      "itemTypeId",
+      "itemDescription",
+      "itemGroup",
+      "uom",
+      "issueType",
+      "status",
+      "procurementType",
+      "shelfLife",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy",
+      "movementType",
+      "controlType",
+      "weight",
+      "kittingType",
+      "qaRequired",
+      "userId"
+    ]
+  },
 
-            -- Primary Key      
-            ALTER TABLE dbo.GRN
-            ADD CONSTRAINT PK_GRN PRIMARY KEY CLUSTERED (grnId);
+  "SKUITEM": {
+    "columns": [
+      "skuId PK",
+      "sku",
+      "grnNumber",
+      "grnLineNumber",
+      "asnCode",
+      "vendorCode",
+      "vendorName",
+      "itemId → ITEM.itemId",
+      "qty",
+      "mfgDate",
+      "lotNumber",
+      "serialNumber",
+      "uom",
+      "isDeleted",
+      "cd",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
 
-            -- Unique Key #1: GRN header-level uniqueness
-         ALTER TABLE dbo.GRN
-            ADD CONSTRAINT UQ_GRN_NumberLine UNIQUE (grnNumber, grnLineNumber);
+  "LOCATION": {
+    "columns": [
+      "locationId PK",
+      "locationCode UNIQUE",
+      "locationName",
+      "parentId",
+      "parentCode",
+      "isLocation",
+      "rltId",
+      "status",
+      "isEmpty",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
 
-            -- Unique Key #2: GRN line + item + batch uniqueness
-            ALTER TABLE dbo.GRN
-            ADD CONSTRAINT UQ_GRN_NumberLineItemBatch 
-                UNIQUE (grnNumber, grnLineNumber, itemCode, batchNumber);
+  "SULOCATION": {
+    "columns": [
+      "suidId PK",
+      "suid",
+      "skuId → SKUITEM.skuId",
+      "qty",
+      "locationId → LOCATION.locationId",
+      "palletId",
+      "binId",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy",
+      "inTransit",
+      "picklistId",
+      "isAllocated",
+      "status",
+      "rejectionReason",
+      "documentId",
+      "onHold",
+      "tempAssetId",
+      "grnLineNumber",
+      "serialNumber",
+      "isGrouped",
+      "kittingType"
+    ]
+  },
+
+  "GRN": {
+    "columns": [
+      "grnId PK",
+      "grnNumber",
+      "grnLineNumber",
+      "asnCode",
+      "vendorCode",
+      "vendorName",
+      "itemCode",
+      "qty",
+      "mfgDate",
+      "grnDate",
+      "batchNumber",
+      "serialNumber",
+      "lotNumber",
+      "isPrinted",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy",
+      "movement",
+      "plant",
+      "documentHeaderText",
+      "qaStatus",
+      "storageLocation",
+      "expiryDate",
+      "oldGrnNumber",
+      "uom",
+      "isCancelled"
+    ],
+    "unique": [
+      ["grnNumber", "grnLineNumber"],
+      ["grnNumber", "grnLineNumber", "itemCode", "batchNumber"]
+    ]
+  }
+                     
 
                 -- IMPORTANT RELATIONSHIPS FOR JOINING:
                 -- SULOCATION.skuId joins SKUITEM.skuId
                 -- SULOCATION.locationId joins LOCATION.locationId
                 -- SKUITEM.itemId joins ITEM.itemId 
                 
-                
-                
-                
-                
-                
-                
-                  "ITEM": {
-        "SKUITEM": "ITEM.itemId = SKUITEM.itemId"
+    "ITEM": {
+    "SKUITEM": "ITEM.itemId = SKUITEM.itemId"
     },
     "SKUITEM": {
         "ITEM": "SKUITEM.itemId = ITEM.itemId",
@@ -203,6 +190,143 @@ inventory_agent = Agent(
         "SKUITEM": "GRN.grnNumber = SKUITEM.grnNumber AND GRN.grnLineNumber = SKUITEM.grnLineNumber"
     }''',
 
+    
+                #     compressed_schema ={
+                        
+                #     "ITEM": {
+                #         "columns": [
+                #         "itemId PK",
+                #         "itemCode UNIQUE",
+                #         "itemTypeId",
+                #         "itemDescription",
+                #         "itemGroup",
+                #         "uom",
+                #         "issueType",
+                #         "status",
+                #         "procurementType",
+                #         "shelfLife",
+                #         "isDeleted",
+                #         "cd datetime",
+                #         "ud datetime",
+                #         "cdBy",
+                #         "udBy",
+                #         "movementType",
+                #         "controlType",
+                #         "weight",
+                #         "kittingType",
+                #         "qaRequired",
+                #         "userId"
+                #         ]
+                #     },
+
+                #     "SKUITEM": {
+                #         "columns": [
+                #         "skuId PK",
+                #         "sku",
+                #         "grnNumber",
+                #         "grnLineNumber",
+                #         "asnCode",
+                #         "vendorCode",
+                #         "vendorName",
+                #         "itemId → ITEM.itemId",
+                #         "qty",
+                #         "mfgDate",
+                #         "lotNumber",
+                #         "serialNumber",
+                #         "uom",
+                #         "isDeleted",
+                #         "cd",
+                #         "ud datetime",
+                #         "cdBy",
+                #         "udBy"
+                #         ]
+                #     },
+
+                #     "LOCATION": {
+                #         "columns": [
+                #         "locationId PK",
+                #         "locationCode UNIQUE",
+                #         "locationName",
+                #         "parentId",
+                #         "parentCode",
+                #         "isLocation",
+                #         "rltId",
+                #         "status",
+                #         "isEmpty",
+                #         "isDeleted",
+                #         "cd datetime",
+                #         "ud datetime",
+                #         "cdBy",
+                #         "udBy"
+                #         ]
+                #     },
+
+                #     "SULOCATION": {
+                #         "columns": [
+                #         "suidId PK",
+                #         "suid",
+                #         "skuId → SKUITEM.skuId",
+                #         "qty",
+                #         "locationId → LOCATION.locationId",
+                #         "palletId",
+                #         "binId",
+                #         "isDeleted",
+                #         "cd datetime",
+                #         "ud datetime",
+                #         "cdBy",
+                #         "udBy",
+                #         "inTransit",
+                #         "picklistId",
+                #         "isAllocated",
+                #         "status",
+                #         "rejectionReason",
+                #         "documentId",
+                #         "onHold",
+                #         "tempAssetId",
+                #         "grnLineNumber",
+                #         "serialNumber",
+                #         "isGrouped",
+                #         "kittingType"
+                #         ]
+                #     },
+
+                #     "GRN": {
+                #         "columns": [
+                #         "grnId PK",
+                #         "grnNumber",
+                #         "grnLineNumber",
+                #         "asnCode",
+                #         "vendorCode",
+                #         "vendorName",
+                #         "itemCode",
+                #         "qty",
+                #         "mfgDate",
+                #         "grnDate",
+                #         "batchNumber",
+                #         "serialNumber",
+                #         "lotNumber",
+                #         "isPrinted",
+                #         "isDeleted",
+                #         "cd datetime",
+                #         "ud datetime",
+                #         "cdBy",
+                #         "udBy",
+                #         "movement",
+                #         "plant",
+                #         "documentHeaderText",
+                #         "qaStatus",
+                #         "storageLocation",
+                #         "expiryDate",
+                #         "oldGrnNumber",
+                #         "uom",
+                #         "isCancelled"
+                #         ],
+                #         "unique": [
+                #         ["grnNumber", "grnLineNumber"],
+                #         ["grnNumber", "grnLineNumber", "itemCode", "batchNumber"]
+                #         ]
+                #     }
+                # }
 
 
 

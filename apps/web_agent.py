@@ -175,6 +175,75 @@ else:
 # --------------------------------------------------------------------------------
 # PROCESS PENDING MESSAGE (After UI Render)
 # --------------------------------------------------------------------------------
+# if "pending_message" in st.session_state:
+#     msg = st.session_state.pending_message
+#     del st.session_state["pending_message"]
+
+#     with st.spinner("🤖 Agent is thinking and executing your query..."):
+#         try:
+#             response = requests.post(
+#                 f"{API_BASE_URL}/run",
+#                 headers={"Content-Type": "application/json"},
+#                 data=json.dumps(
+#                     {
+#                         "app_name": APP_NAME,
+#                         "user_id": st.session_state.user_id,
+#                         "session_id": st.session_state.session_id,
+#                         "new_message": {"role": "user", "parts": [{"text": msg}]},
+#                     }
+#                 ),
+#                 timeout=120,
+#             )
+#         except Exception as e:
+#             st.error(f"❌ Request failed: {e}")
+#             st.stop()
+
+#     if response.status_code != 200:
+#         st.error(f"❌ API Error: {response.text}")
+#         st.stop()
+
+#     # Parse ADK Events
+#     events = response.json()
+#     assistant_message = None
+#     sql_query = None
+#     query_result = None
+
+
+
+#     for event in events:
+#         content = event.get("content", {})
+#         parts = content.get("parts", [])
+
+#         if not parts:
+#             continue
+
+#         part = parts[0]
+
+#         if "text" in part:
+#             assistant_message = part["text"]
+
+#         if "functionResponse" in part:
+#             func_response = part["functionResponse"]
+#             if func_response.get("name") == "execute_query":
+#                 sql_query = func_response.get("arguments", {}).get("query", "")
+#                 query_result = func_response.get("response", {}).get("result", None)
+
+#     if assistant_message:
+#         st.session_state.messages.append({"role": "assistant", "content": assistant_message})
+
+#     if sql_query:
+#         st.session_state.sql_query = sql_query
+
+#     if query_result:
+#         st.session_state.query_result = query_result
+
+#     st.rerun()
+
+
+
+# --------------------------------------------------------------------------------
+# PROCESS PENDING MESSAGE
+# --------------------------------------------------------------------------------
 if "pending_message" in st.session_state:
     msg = st.session_state.pending_message
     del st.session_state["pending_message"]
@@ -184,14 +253,12 @@ if "pending_message" in st.session_state:
             response = requests.post(
                 f"{API_BASE_URL}/run",
                 headers={"Content-Type": "application/json"},
-                data=json.dumps(
-                    {
-                        "app_name": APP_NAME,
-                        "user_id": st.session_state.user_id,
-                        "session_id": st.session_state.session_id,
-                        "new_message": {"role": "user", "parts": [{"text": msg}]},
-                    }
-                ),
+                data=json.dumps({
+                    "app_name": APP_NAME,
+                    "user_id": st.session_state.user_id,
+                    "session_id": st.session_state.session_id,
+                    "new_message": {"role": "user", "parts": [{"text": msg}]},
+                }),
                 timeout=120,
             )
         except Exception as e:
@@ -202,30 +269,55 @@ if "pending_message" in st.session_state:
         st.error(f"❌ API Error: {response.text}")
         st.stop()
 
-    # Parse ADK Events
-    events = response.json()
+    # ===============================
+    # UNIVERSAL ADK EVENT PARSER
+    # ===============================
+    try:
+        events = response.json()
+    except Exception as e:
+        st.error(f"❌ Failed to parse backend response: {e}")
+        st.code(response.text)
+        st.stop()
+
     assistant_message = None
     sql_query = None
     query_result = None
 
-    for event in events:
-        content = event.get("content", {})
-        parts = content.get("parts", [])
+    if isinstance(events, list):
+        for event in events:
 
-        if not parts:
-            continue
+            # ----------- MODEL OUTPUT -----------
+            if "response" in event:
+                resp = event["response"]
 
-        part = parts[0]
+                if "output_text" in resp:
+                    assistant_message = resp["output_text"]
 
-        if "text" in part:
-            assistant_message = part["text"]
+                elif "model_response" in resp and "output_text" in resp["model_response"]:
+                    assistant_message = resp["model_response"]["output_text"]
 
-        if "functionResponse" in part:
-            func_response = part["functionResponse"]
-            if func_response.get("name") == "execute_query":
-                sql_query = func_response.get("arguments", {}).get("query", "")
-                query_result = func_response.get("response", {}).get("result", None)
+                # function call (new ADK)
+                if "function_call" in resp:
+                    func = resp["function_call"]
+                    if func.get("name") == "execute-sql":
+                        sql_query = func.get("arguments", {}).get("query", "")
+                        query_result = resp.get("result", None)
 
+                # older ADK functionResponse
+                if "functionResponse" in resp:
+                    fr = resp["functionResponse"]
+                    if fr.get("name") == "execute-sql":
+                        sql_query = fr.get("arguments", {}).get("query", "")
+                        query_result = fr.get("response", {}).get("result", None)
+
+            # ----------- FALLBACK TEXT -----------
+            if "content" in event:
+                parts = event["content"].get("parts", [])
+                for p in parts:
+                    if "text" in p:
+                        assistant_message = p["text"]
+
+    # Save results to session
     if assistant_message:
         st.session_state.messages.append({"role": "assistant", "content": assistant_message})
 
@@ -236,6 +328,12 @@ if "pending_message" in st.session_state:
         st.session_state.query_result = query_result
 
     st.rerun()
+
+
+
+
+
+
 
 
 # --------------------------------------------------------------------------------

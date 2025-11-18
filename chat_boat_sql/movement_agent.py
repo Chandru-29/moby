@@ -5,11 +5,273 @@ import re
 # Connect to your existing toolbox service
 toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
 tools = toolbox.load_toolset('sql-toolset')
+# compressed_schema ={
+#     {
+#   "ITEM": {
+#     "columns": [
+#       "itemId PK",
+#       "itemCode UNIQUE",
+#       "itemTypeId",
+#       "itemDescription",
+#       "itemGroup",
+#       "uom",
+#       "issueType",
+#       "status",
+#       "procurementType",
+#       "shelfLife",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy",
+#       "movementType",
+#       "controlType",
+#       "weight",
+#       "kittingType",
+#       "qaRequired",
+#       "userId"
+#     ]
+#   },
+
+#   "SKUITEM": {
+#     "columns": [
+#       "skuId PK",
+#       "sku",
+#       "grnNumber",
+#       "grnLineNumber",
+#       "asnCode",
+#       "vendorCode",
+#       "vendorName",
+#       "itemId → ITEM.itemId",
+#       "qty",
+#       "mfgDate",
+#       "lotNumber",
+#       "serialNumber",
+#       "uom",
+#       "isDeleted",
+#       "cd",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy"
+#     ]
+#   },
+
+#   "LOCATION": {
+#     "columns": [
+#       "locationId PK",
+#       "locationCode UNIQUE",
+#       "locationName",
+#       "parentId",
+#       "parentCode",
+#       "isLocation",
+#       "rltId",
+#       "status",
+#       "isEmpty",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy"
+#     ]
+#   },
+
+#   "SULOCATION": {
+#     "columns": [
+#       "suidId PK",
+#       "suid",
+#       "skuId → SKUITEM.skuId",
+#       "qty",
+#       "locationId → LOCATION.locationId",
+#       "palletId",
+#       "binId",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy",
+#       "inTransit",
+#       "picklistId",
+#       "isAllocated",
+#       "status",
+#       "rejectionReason",
+#       "documentId",
+#       "onHold",
+#       "tempAssetId",
+#       "grnLineNumber",
+#       "serialNumber",
+#       "isGrouped",
+#       "kittingType"
+#     ]
+#   },
+
+#   "FGMODEL": {
+#     "columns": [
+#       "fgModelId PK",
+#       "fgModelCode",
+#       "fgModelName",
+#       "itemId → ITEM.itemId",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy"
+#     ]
+#   },
+
+#   "ITEMLOCACNMAP": {
+#     "columns": [
+#       "itemLocAcnMapId PK",
+#       "categoryId",
+#       "itemId → ITEM.itemId",
+#       "warehouseId",
+#       "locationId → LOCATION.locationId",
+#       "acnId",
+#       "zoneId",
+#       "sectionId",
+#       "rackId",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy"
+#     ]
+#   },
+
+#   "FGTRANSACTION": {
+#     "columns": [
+#       "fgTransactionId PK",
+#       "fgCode",
+#       "vin",
+#       "sNo",
+#       "putawayTime",
+#       "suidId → SULOCATION.suidId",
+#       "isSFG",
+#       "isPutaway",
+#       "isDelivered",
+#       "locationId → LOCATION.locationId",
+#       "isVinHold",
+#       "isAccepted",
+#       "isAccessed",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy",
+#       "isEol"
+#     ]
+#   },
+
+#   "SUIDACTIVITYLOG": {
+#     "columns": [
+#       "suidActivityLogId PK",
+#       "suidId → SULOCATION.suidId",
+#       "picklistId",
+#       "status",
+#       "remark",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy"
+#     ]
+#   },
+
+#   "PICKLIST": {
+#     "columns": [
+#       "picklistId PK",
+#       "picklistCode",
+#       "documentTypeId",
+#       "documentNumber",
+#       "mvtId",
+#       "status",
+#       "assignedUser",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy"
+#     ]
+#   },
+
+#   "PICKLISTITEM": {
+#     "columns": [
+#       "picklistItemId PK",
+#       "picklistId → PICKLIST.picklistId",
+#       "itemId → ITEM.itemId",
+#       "qty",
+#       "source",
+#       "destination",
+#       "pickedQty",
+#       "status",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "picklistViewExists"
+#     ]
+#   },
+
+#   "PICKLISTVIEW": {
+#     "columns": [
+#       "picklistViewId PK",
+#       "picklistId → PICKLIST.picklistId",
+#       "itemId → ITEM.itemId",
+#       "suidId → SULOCATION.suidId",
+#       "suid",
+#       "sourceLocId → LOCATION.locationId",
+#       "sourcePalletId",
+#       "sourceBinId",
+#       "status",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime"
+#     ]
+#   },
+
+#   "GRN": {
+#     "columns": [
+#       "grnId PK",
+#       "grnNumber",
+#       "grnLineNumber",
+#       "asnCode",
+#       "vendorCode",
+#       "vendorName",
+#       "itemCode",
+#       "qty",
+#       "mfgDate",
+#       "grnDate",
+#       "batchNumber",
+#       "serialNumber",
+#       "lotNumber",
+#       "isPrinted",
+#       "isDeleted",
+#       "cd datetime",
+#       "ud datetime",
+#       "cdBy",
+#       "udBy",
+#       "movement",
+#       "plant",
+#       "documentHeaderText",
+#       "qaStatus",
+#       "storageLocation",
+#       "expiryDate",
+#       "oldGrnNumber",
+#       "uom",
+#       "isCancelled"
+#     ],
+#     "unique": [
+#       ["grnNumber", "grnLineNumber"],
+#       ["grnNumber", "grnLineNumber", "itemCode", "batchNumber"]
+#     ]
+#   }
+# }
+
+# }
 
 movement_agent = Agent(
     model='gemini-2.5-flash',
     name='movement_agent',
  description='A helpful assistant that can understand user questions and query the MSSQL database (read-only).',
+    # schema=compressed_schema ,
     instruction=''' You are a SQL assistant that interacts with a MSSQL database.
                     You must only generate safe, read-only SQL queries (i.e., SELECT queries).
                     Do NOT generate or execute any queries that modify data such as UPDATE, DELETE, INSERT, DROP, ALTER, or TRUNCATE.
@@ -18,281 +280,268 @@ movement_agent = Agent(
                     If the query is ambiguous, ask a short clarifying question.
                     Don't use any table query that get the list of tables in the database.
                     Put a hard limit of 50 rows in the SQL query using "TOP 50" to avoid large data retrieval.
+                  
                     
-                    
-    DB Schema - 
-        -- Table 1: dbo.ITEM (Master Item Data)
-        -- PRIMARY KEY: itemId
-        -- UNIQUE KEY: itemCode
-        CREATE TABLE dbo.ITEM (
-            itemId
-        [itemCode] 
-        [itemTypeId] 
-        [itemDescription]
-        [itemGroup]
-        [uom] 
-        [issueType] 
-        [status] 
-        [procurementType] 
-        [shelfLife]
-        [isDeleted] 
-        [cd] [datetime] 
-        [ud] [datetime] 
-        [cdBy] 
-        [udBy] 
-        [movementType] 
-        [controlType]
-        [weight] 
-        [kittingType] 
-        [qaRequired] 
-        [userId] 
-        );
-
-        -- Table 2: dbo.SKUITEM (Stock Keeping Unit / GRN Data)
-        -- PRIMARY KEY: skuId
-        -- FOREIGN KEY: itemId REFERENCES dbo.ITEM(itemId)
-        CREATE TABLE dbo.SKUITEM (
-        [skuId] 
-        [sku] 
-        [grnNumber] 
-        [grnLineNumber] 
-        [asnCode] 
-        [vendorCode] 
-        [vendorName] 
-        [itemId]
-        [qty]
-        [mfgDate] 
-        [lotNumber] 
-        [serialNumber] 
-        [uom] 
-        [isDeleted] 
-        [cd] 
-        [ud] [datetime]
-        [cdBy] [varchar]
-        [udBy] [varchar]
-        );
-
-        -- Table 3: dbo.LOCATION (Warehouse Locations)
-        -- PRIMARY KEY: locationId
-        -- UNIQUE KEY: locationCode
-        CREATE TABLE dbo.LOCATION (
-        [locationId] 
-        [locationCode] 
-        [locationName] 
-        [parentId] 
-        [parentCode] 
-        [isLocation] 
-        [rltId] 
-        [status] 
-        [isEmpty] 
-        [isDeleted] 
-        [cd] [datetime] 
-        [ud] [datetime] 
-        [cdBy] 
-        [udBy] 
-        );
-
-        -- Table 4: dbo.SULOCATION (Stock Unit Location - Where the SKUs actually are)
-        -- PRIMARY KEY: suidId
-        -- FOREIGN KEY 1: skuId REFERENCES dbo.SKUITEM(skuId)
-        -- FOREIGN KEY 2: locationId REFERENCES dbo.LOCATION(locationId)
-        CREATE TABLE dbo.SULOCATION (
-            [suidId] 
-        [suid] 
-        [skuId] 
-        [qty] 
-        [locationId] 
-        [palletId] 
-        [binId] 
-        [isDeleted] 
-        [cd] [datetime] 
-        [ud] [datetime] 
-        [cdBy] 
-        [udBy] 
-        [inTransit] 
-        [picklistId] 
-        [isAllocated] 
-        [status] 
-        [rejectionReason] 
-        [documentId] 
-        [onHold] 
-        [tempAssetId] 
-        [grnLineNumber] 
-        [serialNumber] 
-        [isGrouped] 
-        [kittingType] 
-        );
-
-
-        Table 5: dbo.FGMODEL (Finished Goods Model)
-    CREATE TABLE dbo.FGMODEL (
-        fgModelId 
-        fgModelCode 
-        fgModelName 
-        itemId
-        isDeleted 
-        cd DATETIME2 
-        ud DATETIME2
-        cdBy 
-        udBy 
-    );
-
-    -- Table 6: dbo.ITEMLOCACNMAP (Item-Location Mapping)
-    CREATE TABLE dbo.ITEMLOCACNMAP (
-        itemLocAcnMapId 
-        categoryId
-        itemId 
-        warehouseId 
-        locationId 
-        acnId 
-        zoneId
-        sectionId 
-        rackId  
-        isDeleted 
-        cd DATETIME  
-        ud DATETIME  (),
-        [cdBy]
-	    [udBy] 
-    );
-
-    -- Table 7: dbo.FGTRANSACTION (Finished Goods Movement / Putaway)
-    CREATE TABLE dbo.FGTRANSACTION (
-        fgTransactionId 
-        fgCode 
-        vin 
-        sNo 
-        putawayTime  
-        suidId 
-        isSFG 
-        isPutaway 
-        isDelivered 
-        locationId 
-        isVinHold 
-        isAccepted 
-        isAccessed 
-        isDeleted 
-        cd DATETIME2 
-        ud DATETIME2 ,
-        cdBy 
-        udBy 
-        isEol BIT DEFAULT 0
-    );
-
-    -- Table 8: dbo.SUIDACTIVITYLOG (Tracks SU Movements & Picklists)
-    CREATE TABLE dbo.SUIDACTIVITYLOG (
-        suidActivityLogId 
-        suidId 
-        picklistId 
-        status 
-        remark 
-        isDeleted 
-        cd DATETIME 
-        ud DATETIME
-        cdBy 
-        udBy 
-    );
-
-    -- Table 9: dbo.PICKLIST (Picklist Header)
-    CREATE TABLE dbo.PICKLIST (
-        picklistId 
-        picklistCode 
-        documentTypeId 
-        documentNumber LL,
-        mvtId 
-        status 
-        assignedUser 
-        isDeleted 
-        cd DATETIME 
-        ud DATETIME 
-        cdBy 
-        udBy 
-    );
-
-    -- Table 10: dbo.PICKLISTITEM (Line items in a picklist)
-    CREATE TABLE dbo.PICKLISTITEM (
-        picklistItemId 
-        picklistId 
-        itemId 
-        qty 
-        source 
-        destination 
-        pickedQty 
-        status 
-        isDeleted 
-        cd DATETIME 
-        ud DATETIME 
-        picklistViewExists 
-    );
-
-    -- Table 11: dbo.PICKLISTVIEW (View of Picklist Items and SUIDs)
-    CREATE TABLE dbo.PICKLISTVIEW (
-        picklistViewId 
-        picklistId 
-        itemId 
-        suidId
-        suid 
-        sourceLocId 
-        sourcePalletId
-        sourceBinId 
-        status 
-        isDeleted 
-        cd DATETIME 
-        ud DATETIME 
-    );
-
-
-
-      -- Table 12: dbo.GRN (Goods Receipt Note)
-        -- PRIMARY KEY: grnId
-        -- UNIQUE KEYS:
-        --   1) (grnNumber, grnLineNumber)
-        --   2) (grnNumber, grnLineNumber, itemCode, batchNumber)
-
-        CREATE TABLE [dbo].[GRN](
-            [grnId] 
-            [grnNumber] 
-            [grnLineNumber] 
-            [asnCode] 
-            [vendorCode] 
-            [vendorName] 
-            [itemCode] 
-            [qty] 
-            [mfgDate] 
-            [grnDate] 
-            [batchNumber] 
-            [serialNumber] 
-            [lotNumber] 
-            [isPrinted] 
-            [isDeleted] 
-            [cd] [datetime] 
-            [ud] [datetime] 
-            [cdBy] 
-            [udBy] 
-            [movement] 
-            [plant] 
-            [documentHeaderText] 
-            [qaStatus] 
-            [storageLocation] ,
-            [expiryDate] 
-            [oldGrnNumber] 
-            [uom] 
-            [isCancelled] 
-            );
-
-            -- Primary Key      
-            ALTER TABLE dbo.GRN
-            ADD CONSTRAINT PK_GRN PRIMARY KEY CLUSTERED (grnId);
-
-            -- Unique Key #1: GRN header-level uniqueness
-         ALTER TABLE dbo.GRN
-            ADD CONSTRAINT UQ_GRN_NumberLine UNIQUE (grnNumber, grnLineNumber);
-
-            -- Unique Key #2: GRN line + item + batch uniqueness
-            ALTER TABLE dbo.GRN
-            ADD CONSTRAINT UQ_GRN_NumberLineItemBatch 
-                UNIQUE (grnNumber, grnLineNumber, itemCode, batchNumber);
-
      
+DB schema:
+"ITEM": {
+    "columns": [
+      "itemId PK",
+      "itemCode UNIQUE",
+      "itemTypeId",
+      "itemDescription",
+      "itemGroup",
+      "uom",
+      "issueType",
+      "status",
+      "procurementType",
+      "shelfLife",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy",
+      "movementType",
+      "controlType",
+      "weight",
+      "kittingType",
+      "qaRequired",
+      "userId"
+    ]
+  },
+
+  "SKUITEM": {
+    "columns": [
+      "skuId PK",
+      "sku",
+      "grnNumber",
+      "grnLineNumber",
+      "asnCode",
+      "vendorCode",
+      "vendorName",
+      "itemId → ITEM.itemId",
+      "qty",
+      "mfgDate",
+      "lotNumber",
+      "serialNumber",
+      "uom",
+      "isDeleted",
+      "cd",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
+
+  "LOCATION": {
+    "columns": [
+      "locationId PK",
+      "locationCode UNIQUE",
+      "locationName",
+      "parentId",
+      "parentCode",
+      "isLocation",
+      "rltId",
+      "status",
+      "isEmpty",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
+
+  "SULOCATION": {
+    "columns": [
+      "suidId PK",
+      "suid",
+      "skuId → SKUITEM.skuId",
+      "qty",
+      "locationId → LOCATION.locationId",
+      "palletId",
+      "binId",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy",
+      "inTransit",
+      "picklistId",
+      "isAllocated",
+      "status",
+      "rejectionReason",
+      "documentId",
+      "onHold",
+      "tempAssetId",
+      "grnLineNumber",
+      "serialNumber",
+      "isGrouped",
+      "kittingType"
+    ]
+  },
+
+  "FGMODEL": {
+    "columns": [
+      "fgModelId PK",
+      "fgModelCode",
+      "fgModelName",
+      "itemId → ITEM.itemId",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
+
+  "ITEMLOCACNMAP": {
+    "columns": [
+      "itemLocAcnMapId PK",
+      "categoryId",
+      "itemId → ITEM.itemId",
+      "warehouseId",
+      "locationId → LOCATION.locationId",
+      "acnId",
+      "zoneId",
+      "sectionId",
+      "rackId",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
+
+  "FGTRANSACTION": {
+    "columns": [
+      "fgTransactionId PK",
+      "fgCode",
+      "vin",
+      "sNo",
+      "putawayTime",
+      "suidId → SULOCATION.suidId",
+      "isSFG",
+      "isPutaway",
+      "isDelivered",
+      "locationId → LOCATION.locationId",
+      "isVinHold",
+      "isAccepted",
+      "isAccessed",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy",
+      "isEol"
+    ]
+  },
+
+  "SUIDACTIVITYLOG": {
+    "columns": [
+      "suidActivityLogId PK",
+      "suidId → SULOCATION.suidId",
+      "picklistId",
+      "status",
+      "remark",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
+
+  "PICKLIST": {
+    "columns": [
+      "picklistId PK",
+      "picklistCode",
+      "documentTypeId",
+      "documentNumber",
+      "mvtId",
+      "status",
+      "assignedUser",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy"
+    ]
+  },
+
+  "PICKLISTITEM": {
+    "columns": [
+      "picklistItemId PK",
+      "picklistId → PICKLIST.picklistId",
+      "itemId → ITEM.itemId",
+      "qty",
+      "source",
+      "destination",
+      "pickedQty",
+      "status",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "picklistViewExists"
+    ]
+  },
+
+  "PICKLISTVIEW": {
+    "columns": [
+      "picklistViewId PK",
+      "picklistId → PICKLIST.picklistId",
+      "itemId → ITEM.itemId",
+      "suidId → SULOCATION.suidId",
+      "suid",
+      "sourceLocId → LOCATION.locationId",
+      "sourcePalletId",
+      "sourceBinId",
+      "status",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime"
+    ]
+  },
+
+  "GRN": {
+    "columns": [
+      "grnId PK",
+      "grnNumber",
+      "grnLineNumber",
+      "asnCode",
+      "vendorCode",
+      "vendorName",
+      "itemCode",
+      "qty",
+      "mfgDate",
+      "grnDate",
+      "batchNumber",
+      "serialNumber",
+      "lotNumber",
+      "isPrinted",
+      "isDeleted",
+      "cd datetime",
+      "ud datetime",
+      "cdBy",
+      "udBy",
+      "movement",
+      "plant",
+      "documentHeaderText",
+      "qaStatus",
+      "storageLocation",
+      "expiryDate",
+      "oldGrnNumber",
+      "uom",
+      "isCancelled"
+    ],
+    "unique": [
+      ["grnNumber", "grnLineNumber"],
+      ["grnNumber", "grnLineNumber", "itemCode", "batchNumber"]
+    ]
+  }
+}
+
 
     ============================
     KEY RELATIONSHIPS
