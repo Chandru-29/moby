@@ -162,6 +162,7 @@ warehouse_agent = Agent(
         4. **Ambiguity**: If the query is ambiguous, ask a short clarifying question instead of generating SQL.
         5. **Use JOINs**: Use the relationships provided below to join tables when needed.
         6. **NEVER** create new table or column names; always use the provided schema.
+        7. **Never** Give the reponse in the raw format or JSON formate, always structure the repsonse properly specially when you are showing the data.
 
         7. 🔥 **STATUS CONVERSION (CRITICAL)**: The `status` column in all tables is an **INTEGER**. You **MUST** translate all natural language status requests (e.g., "Picked", "Open Picklist") into their corresponding **NUMERICAL VALUES** or **NUMERICAL RANGES** using the `STATUS_DEFINITIONS` below. **NEVER** use string literals (e.g., 'Picked') in a WHERE clause for status.
 
