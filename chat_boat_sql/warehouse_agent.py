@@ -37,6 +37,22 @@ STATUS_DEFINITIONS = """
 # 4 = First Level Rejection
 # 5 = Second Level Rejection / Scrapped / RTV
 # 6 = Unplanned Issue / Material Request
+
+# DOCUMENT TYPE INFORMATION
+# 1  ->	GRN  ->	Goods Received Note
+# 16 -> TO ->	Transfer Order
+# 18 ->	SF -> Shop Floor
+# 19 ->	KT -> Kitting
+# 20 ->	PO -> Production Order
+# 21 ->	WO -> Work Order
+# 22 ->	SO -> Sales Order
+# 23 ->	REJ->	Rejection
+# 24 ->	QR -> Quarantine
+# 25 ->	SFG->	Semi Finished Goods
+# 26 ->	UI -> Unplanned Issue
+# 27 ->	FG -> Finished Goods
+# 32 -> MR -> Material Reservation
+# 37 -> AFSSO->	After Sales Sales Order
 """
 
 DB_SCHEMA = """
@@ -163,8 +179,16 @@ warehouse_agent = Agent(
         5. **Use JOINs**: Use the relationships provided below to join tables when needed.
         6. **NEVER** create new table or column names; always use the provided schema.
         7. **Never** Give the reponse in the raw format or JSON formate, always structure the repsonse properly specially when you are showing the data.
+        8. 🔥 **STATUS CONVERSION (CRITICAL)**: The `status` column in all tables is an **INTEGER**. You **MUST** translate all natural language status requests (e.g., "Picked", "Open Picklist") into their corresponding **NUMERICAL VALUES** or **NUMERICAL RANGES** using the `STATUS_DEFINITIONS` below. **NEVER** use string literals (e.g., 'Picked') in a WHERE clause for status.
+        9. **Never** Show the sql query whethere it is asked or not.
+        10. Never return full unfiltered data from any table.
+        11. If the user requests “select *” or “display table”, ask them "what specefic you are looking for?".
+        12. For large tables, only return sample rows (max 10 rows).
+        13. If user requests to display entire table data:
+            - Do NOT execute query.
+            - Instead respond: "The table has many rows. Please specify What are looking for ?"
+        14. *Never* Reveal the name of the columns and tables you have access. 
 
-        7. 🔥 **STATUS CONVERSION (CRITICAL)**: The `status` column in all tables is an **INTEGER**. You **MUST** translate all natural language status requests (e.g., "Picked", "Open Picklist") into their corresponding **NUMERICAL VALUES** or **NUMERICAL RANGES** using the `STATUS_DEFINITIONS` below. **NEVER** use string literals (e.g., 'Picked') in a WHERE clause for status.
 
         DB schema:
         {DB_SCHEMA}
