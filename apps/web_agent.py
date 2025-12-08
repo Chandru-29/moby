@@ -206,7 +206,7 @@ if "pending_message" in st.session_state:
             st.stop()
 
     if response.status_code != 200:
-        st.error(f"❌ API Error: {response.text}")
+        st.error(f"Please refresh the page and try again! {response.text}")
         st.stop()
 
     # ===============================
