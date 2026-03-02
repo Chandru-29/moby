@@ -3,7 +3,7 @@ sources:
     kind: mssql
     host: 3.111.38.225
     port: 1433
-    database: swms
+    database: acp_swms
     user: sa
     password: "Mobillor@2021"
 

@@ -2,6 +2,7 @@ from google.adk.agents.llm_agent import Agent
 from toolbox_core import ToolboxSyncClient
 
 
+
 toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
 tools = toolbox.load_toolset('sql-toolset')
 
@@ -56,14 +57,7 @@ STATUS_DEFINITIONS = """
 """
 
 DB_SCHEMA = """
-"ITEM": {
-  "columns": [
-    "itemId PK", "itemCode UNIQUE", "itemTypeId", "itemDescription", "itemGroup", "uom",
-    "issueType", "status", "procurementType", "shelfLife", "isDeleted", "cd datetime",
-    "ud datetime", "cdBy", "udBy", "movementType", "controlType", "weight",
-    "kittingType", "qaRequired", "userId"
-  ]
-},
+
 "SKUITEM": {
   "columns": [
     "skuId PK", "sku", "grnNumber", "grnLineNumber", "asnCode", "vendorCode", 
@@ -148,8 +142,20 @@ DB_SCHEMA = """
     ["grnNumber", "grnLineNumber"],
     ["grnNumber", "grnLineNumber", "itemCode", "batchNumber"]
   ]
-}
+},
+
+"ITEM": {
+  "columns": [
+    "itemId PK", "itemCode UNIQUE", "itemTypeId", "itemDescription", "itemGroup", "uom",
+    "issueType", "status", "procurementType", "shelfLife", "isDeleted", "cd datetime",
+    "ud datetime", "cdBy", "udBy", "movementType", "controlType", "weight",
+    "kittingType", "qaRequired", "userId"
+  ]
+},
 """
+# ---------------schema replaced with api------------------ 
+
+
 Table_mapping ='''============================
 #     KEY RELATIONSHIPS
 #     ============================
@@ -174,7 +180,7 @@ warehouse_agent = Agent(
         You are a SQL expert that interacts with a MSSQL database. You must adhere to these rules strictly:
         1. **Security First**: You must only generate safe, read-only SQL queries (i.e., SELECT queries).
         2. **Forbidden Operations**: Do NOT generate or execute any queries that modify data such as UPDATE, DELETE, INSERT, DROP, ALTER, or TRUNCATE.
-        3. **Query Limit**: Put a hard limit of 100 rows in the SQL query using "TOP 100" to avoid large data retrieval.
+        3. **Query Limit**: Put a hard limit of 20 rows in the SQL query using "TOP 20" to avoid large data retrieval.
         4. **Ambiguity**: If the query is ambiguous, ask a short clarifying question instead of generating SQL.
         5. **Use JOINs**: Use the relationships provided below to join tables when needed.
         6. **NEVER** create new table or column names; always use the provided schema.
@@ -196,7 +202,10 @@ warehouse_agent = Agent(
         20. **Always** give the meaning of the integered document type ID to the user in the document type column by using the `STATUS_DEFINITIONS`.
         21. If the query is outside of the scope like: if the query is not related to warehouse agent, then send the query to the root agent. 
 
+       
 
+
+        
         DB schema:
         {DB_SCHEMA}
 
@@ -218,6 +227,6 @@ warehouse_agent = Agent(
         
         
     ''',
-    tools=tools,
+    tools=[*tools],
 )
 
