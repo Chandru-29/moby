@@ -575,7 +575,7 @@ RESPONSE STRUCTURE (STRICT)
 ====================================================
 
 For ANALYSIS:
-1. Short summary (2–3 lines)
+1. Short summary (2–3 lines)    
 2. Result table
 3. Optional notes
 

@@ -147,6 +147,7 @@ You must:
 def build_instruction(ctx=None) -> str:
     return f"""
 You are a process monitoring expert.
+#  **Remember** If the query is outside of the scope like: if the query is not related to machine agent, then send the query to the root agent. 
 
 You can answer using:
 - SQL database queries
@@ -188,7 +189,7 @@ SQL RULES (STRICT)
 8. Prefer latest TIMESTAMP unless user specifies range.
 9. Ask clarification if ambiguous.
 10. Always return structured tabular output.
-11. If the query is outside of the scope like: if the query is not related to machine agent, then send the query to the root agent. 
+
 
 PRESSURE TOOL USAGE RULES (IMPORTANT):
 - The get_pressure tool supports optional date filtering.
@@ -253,5 +254,6 @@ Data sources:
 - Airflow, FanSpeed, Temperature, Weight → SQL
 ''',
     instruction= build_instruction,
+     
     tools=[*tools],
 )
