@@ -9,7 +9,6 @@ from toolbox_core import ToolboxSyncClient
 toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
 tools = toolbox.load_toolset("sql-toolset")
 
-
 # ============================================================
 # DATABASE SCHEMA
 # ============================================================
@@ -332,7 +331,7 @@ Then compare the latest two years available in the dataset.
 
 
 # ============================================================
-# SQL PATTERNS (FEW SHOT EXAMPLES)
+# SQL PATTERNS 
 # ============================================================
 
 SQL_PATTERNS = """
