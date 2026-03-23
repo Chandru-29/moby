@@ -2,9 +2,9 @@ from google.adk.agents.llm_agent import Agent
 from google.adk.tools.agent_tool import AgentTool
 from toolbox_core import ToolboxSyncClient
 
-from chat_boat_sql.analytics_agent import analytics_agent
-from chat_boat_sql.warehouse_agent import warehouse_agent
 
+from demo_agents.pharma_agent import pharma_agent
+from demo_agents.machine_agent import machine_agent
 
 
 
@@ -13,7 +13,6 @@ from chat_boat_sql.warehouse_agent import warehouse_agent
 # toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
 # tools = toolbox.load_toolset('sql-toolset')
 
-# #  - And if the user's question relates to analysing data, quantities, locations, picklists, GRNs, or any information from the database, you **MUST** call the `analytics_agent  with the full original query.
 
 root_agent = Agent(
     model="gemini-2.5-flash-lite",
@@ -28,24 +27,71 @@ root_agent = Agent(
             # and delegate the query to the correct sub-agent.
 
            2. **Delegation**: -  
-                               - If the user's question relates to pharmaceutical sales analytics such as:
+                               Pharmaceutical Data
+    If the query mention any of :
+             
+            product performance
+            performance
+            performance trends
+            fast moving
+            fast movers
+            slow moving
+            slow movers
+            product trend
+            trend
+            trends
+            -doctor
+            -doctors
+            -scheme
+            -scheme value
+            -scheme opportunity
+            -pharma
+            -stockist
+            -primary sales
+            -secondary sales
+            -billing
+            -product performance
+            -fast moving
+            -slow moving
+            -sales trend
+            -growth
+            -decline
+            -region sales
+            -team sales
+            -zone sales
+            -closing stock
+            -opening stock
+            -expiry
+            -expired quantity
+            -PTR
+            -PTS
+            -MRP
+            -NRV
+            -pharma product
+            -pharma sales
+            -scheme impact
+YOU MUST:
+- Call `pharma_agent`
+- Pass the FULL ORIGINAL USER QUERY
+- RETURN ONLY the tool call
+- STOP
 
-                                
-                                   WAREHOUSE / ERP DATA
+3. MACHINE / SENSOR DATA
 If the query mentions ANY of:
-        - GRN
-        - picklist
-        - inventory
-        - stock
-        - warehouse
-        - location
-        - item
-        - quantity
-        - batch
-        - lot
+        - fan
+        - fan speed
+        - rpm
+        - temperature
+        - pressure
+        - airflow
+        - sensors
+        - telemetry
+        - machine
+        - point name
+        - weight
 
 YOU MUST:
-- Call `warehouse_agent`
+- Call `machine_agent`
 - Pass the FULL ORIGINAL USER QUERY
 - RETURN ONLY the tool call
 - STOP
@@ -60,15 +106,11 @@ YOU MUST:
         ''',
 
  
-    #  sub_agents=[ pharma_agent],
-     sub_agents=[ warehouse_agent],
-    #  sub_agents=[ wh_agent],
+     sub_agents=[ pharma_agent,
+                  machine_agent],
 
-    #  sub_agents =[analytics_agent],
-    #  tools=[   
-    #     *tools  
-    # ],
-        
+
+  
       
 )
 

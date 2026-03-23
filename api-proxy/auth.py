@@ -1,5 +1,5 @@
 from fastapi import Header, HTTPException
-import jwt
+import jwt # type: ignore
 from .config import AI_PROXY_API_KEY, JWT_SECRET, JWT_ALGORITHM
 
 def require_api_key(x_api_key: str = Header(None)):
