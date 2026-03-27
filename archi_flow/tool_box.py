@@ -66,5 +66,5 @@ def execute_query(request: ExecuteQueryRequest):
 
         raise HTTPException(
             status_code=500,
-            detail=f"MCP execution failed: {str(e)}"
+            detail=f"MCP execution failed: {str(e)}"    
         )

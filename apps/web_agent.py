@@ -29,7 +29,7 @@ st.markdown("""
 # Constants
 # --------------------------------------------------------------------------------
 API_BASE_URL = "http://localhost:8000"
-APP_NAME = "chat_boat_sql"
+APP_NAME = "demo_agents"
 
 # --------------------------------------------------------------------------------
 # Initialize Session State
