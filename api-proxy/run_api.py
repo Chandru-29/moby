@@ -4,12 +4,15 @@ import httpx
 import asyncio
 import json
 from db import upsert_token_usage
-
+import os
+from dotenv import load_dotenv
 from fastapi import APIRouter
 
 router = APIRouter()
+load_dotenv()
 
-ADK_URL = "https://ai-chatbot.mobillor.net/dev_api/run"
+ADK_BASE_URL = os.getenv("ADK_BASE_URL")
+# ADK_URL = "https://ai-chatbot.mobillor.net/dev_api/run"
 
 # HTTP client
 client = httpx.AsyncClient(timeout=60.0)
@@ -82,7 +85,7 @@ async def proxy_run(request: Request):
 
         # Step 1: Call ADK
         response = await client.post(
-            ADK_URL,
+            ADK_BASE_URL,
             json=payload,
             headers={"Content-Type": "application/json"}
         )

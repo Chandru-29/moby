@@ -446,7 +446,7 @@ TABLE_MAPPING = """
 # SUIDACTIVITYLOG.suidId → SULOCATION.suidId
 # SUIDACTIVITYLOG.picklistId → PICKLIST.picklistId
 # PICKLISTITEM.itemId → ITEM.itemId
-# PICKLISTITEM.picklistId → PICKLIST.picklistId
+# PICKLISTITEM.picklistId → PICKLIST.picklistId 
 # PICKLISTVIEW.picklistId → PICKLIST.picklistId
 # PICKLISTVIEW.itemId → ITEM.itemId
 # PICKLISTVIEW.suidId → SULOCATION.suidId

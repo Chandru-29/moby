@@ -4,7 +4,8 @@ from toolbox_core import ToolboxSyncClient
 
 from chat_boat_sql.analytics_agent import analytics_agent
 from chat_boat_sql.warehouse_agent import warehouse_agent
-
+from rag_service.rag_tool import retrieve_knowledge
+from chat_boat_sql.warehouse_agent import warehouse_agent
 
 
 root_agent = Agent(
@@ -61,53 +62,35 @@ YOU MUST:
       
 )
 
-def handle_user_input(user_query: str):
-    response = root_agent.generate(user_query)
-    sql_text = response.text.strip()
-
-    print("\n Generated SQL Query:")
-    print(sql_text)
-
-    if not is_safe_sql(sql_text):
-        print("\n Unsafe query detected! Only SELECT queries are allowed.")
-        print("The agent will not execute this command.")
-        return
-
-    try:
-        # sql_tool = tools['execute-sql']
-        # db_result = sql_tool.run({"query": sql_text})
-        print("\n Database Result:")
-        # print(db_result)
-    except Exception as e:
-        print("\n Error executing SQL query:", e)
-
-
-def is_safe_sql(sql_text: str) -> bool:
-    """Ensure SQL is read-only."""
-    forbidden = ["UPDATE", "DELETE", "DROP", "INSERT", "ALTER", "TRUNCATE"]
-    sql_upper = sql_text.strip().upper()
-    if sql_upper.startswith(("SELECT", "WITH")):
-        return not any(word in sql_upper for word in forbidden)
-    return False
-
-
-if __name__ == "__main__":
-    print(" Root Router Agent started (read-only SQL mode). Type 'exit' to quit.")
-    while True:
-        query = input("\nYou: ").strip()
-        if query.lower() in ["exit", "quit"]:
-            break
-        result = handle_user_input(query)
-        print(f"\n Result:\n{result}")
 
 
 
 
 
+def handle_query(user_query):
+
+    routed = root_agent.generate(user_query)
+
+    knowledge = retrieve_knowledge(user_query)
+
+    if not knowledge:
+        return "No schema found"
+
+    knowledge_text = "\n\n".join(knowledge)
 
 
+    prompt = f"""
+You MUST ONLY use the following database knowledge:
 
+{knowledge_text}
 
+User Query:
+{user_query}
+"""
+
+    response = warehouse_agent.generate(prompt)
+
+    return response.text
 
 
 
