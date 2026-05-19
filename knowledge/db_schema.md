@@ -55,6 +55,13 @@ TYPE: semantic
 "location" → LOCATION.locationCode
 "bin location" → LOCATION.locationCode
 "put away location" → LOCATION.locationCode
+GRN = entry point (inbound flow)
+ITEM = master reference
+
+Bridge = itemCode (NOT itemId)
+
+Stock is NOT directly in GRN
+→ must go through SKUITEM → SULOCATION
 
 # JOIN REQUIREMENT:
 To get put away location:
@@ -263,11 +270,24 @@ TYPE: schema
 
 COLUMNS:
 fgTransactionId (PK)
+fgCode
+vin
+sNo
+putawayTime
+isSFG
+isVinHold
 suidId → SULOCATION.suidId
 locationId → LOCATION.locationId
 isPutaway
 isDelivered
 isDeleted
+isAccepted
+isAccessed
+cd
+ud
+cdBy
+udBy
+isEol
 
 ---
 
@@ -300,6 +320,26 @@ RULE:
 
 ---
 
+# TABLE: WAREHOUSE
+type: schema
+
+COLUMNS:
+warehouseId (PK)
+warehouseName
+warehouseCode
+plantId
+isActive
+isDeleted
+cd
+ud
+cdBy
+udBy
+warehouseTypeId
+acnId
+layoutJson
+
+---
+
 # CORE RELATIONSHIPS
 TYPE: relationship
 
@@ -319,6 +359,26 @@ FGTRANSACTION.locationId → LOCATION.locationId
 
 SUIDACTIVITYLOG.suidId → SULOCATION.suidId
 
+SULOCATION.skuId → SKUITEM.skuId
+SKUITEM.itemId → ITEM.itemId
+
+WAREHOUSE.warehouseId → ITEMLOCACNMAP.warehouseId
+
+ITEMLOCACNMAP.itemId → ITEM.itemId
+
+ITEMLOCACNMAP.locationId → LOCATION.locationId
+
+
+GRN.itemCode → ITEM.itemCode
+
+ITEM.itemId → SKUITEM.itemId
+
+SKUITEM.skuId → SULOCATION.skuId
+
+SULOCATION.locationId → LOCATION.locationId
+
+
+
 ---
 
 # JOIN PATHS (CRITICAL)
@@ -335,6 +395,18 @@ PICKLIST → [user]
 
 STOCK BY LOCATION:
 SULOCATION → LOCATION
+
+WAREHOUSE → ITEMLOCACNMAP → ITEM
+WAREHOUSE → ITEMLOCACNMAP → LOCATION
+WAREHOUSE → ITEMLOCACNMAP → ITEM → SKUITEM → SULOCATION
+WAREHOUSE → ITEMLOCACNMAP → ITEM → SKUITEM → SULOCATION → LOCATION
+WAREHOUSE → ITEMLOCACNMAP → ITEM → SKUITEM → SULOCATION → FGTRANSACTION
+
+GRN → ITEM (via itemCode)
+GRN → ITEM → SKUITEM → SULOCATION
+GRN → ITEM → SKUITEM → SULOCATION → LOCATION
+ITEM → GRN (via itemCode)
+ITEM → GRN → SKUITEM → SULOCATION
 
 ---
 
@@ -364,6 +436,43 @@ TYPE: logic
 
 "total items"
 → COUNT(ITEM.itemId)
+
+
+"warehouse items"
+→ WAREHOUSE + ITEMLOCACNMAP + ITEM
+
+"warehouse locations"
+→ WAREHOUSE + ITEMLOCACNMAP + LOCATION
+
+"warehouse stock"
+→ WAREHOUSE + ITEMLOCACNMAP + ITEM + SKUITEM + SULOCATION
+
+"warehouse inventory by location"
+→ WAREHOUSE + ITEMLOCACNMAP + ITEM + SKUITEM + SULOCATION + LOCATION
+
+"warehouse fg tracking"
+→ WAREHOUSE + ITEMLOCACNMAP + ITEM + SKUITEM + SULOCATION + FGTRANSACTION
+
+"warehouse item mapping"
+→ ITEMLOCACNMAP
+
+"item grn details"
+→ ITEM + GRN
+
+"grn item stock"
+→ GRN + ITEM + SKUITEM + SULOCATION
+
+"grn inventory by location"
+→ GRN + ITEM + SKUITEM + SULOCATION + LOCATION
+
+"items received via grn"
+→ GRN + ITEM
+
+"latest grn for item"
+→ GRN + ITEM ORDER BY GRN.cd DESC
+
+"grn item movement"
+→ GRN + ITEM + SKUITEM + SULOCATION
 
 ---
 

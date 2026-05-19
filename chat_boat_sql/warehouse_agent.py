@@ -6,7 +6,7 @@ from rag_service.rag_tool import retrieve_knowledge
 
 
 
-toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
+toolbox = ToolboxSyncClient("http://127.0.0.1:8001")
 tools = toolbox.load_toolset('sql-toolset')
 
 

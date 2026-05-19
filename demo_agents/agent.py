@@ -5,6 +5,9 @@ from toolbox_core import ToolboxSyncClient
 
 from demo_agents.pharma_agent import pharma_agent
 from demo_agents.machine_agent import machine_agent
+from demo_agents.berger_agent import demand_agent
+
+
 
 
 
@@ -96,6 +99,25 @@ YOU MUST:
 - RETURN ONLY the tool call
 - STOP
 
+
+
+4. Demand DATA
+If the query mentions ANY of:
+    ITEM,
+    ITEM_DESC,
+    LOCATION,
+    DEMAND_TYPE,
+    DEMAND_ID,
+    FISCAL_MONTH"
+    WEEK,
+    DEMAND_QUANTITY
+
+YOU MUST:
+- Call `demand_agent`
+- Pass the FULL ORIGINAL USER QUERY
+- RETURN ONLY the tool call
+- STOP
+
             3. **Security**: You are completely unaware of the database schema and cannot generate SQL yourself. Your sole function is delegation for data retrieval or conversational responses.
             4. **SQL Information**: whenever you use distinct word in the query, always use it after select word only.
             5. **Never** Show the sql query whethere it is asked or not.
@@ -107,7 +129,8 @@ YOU MUST:
 
  
      sub_agents=[ pharma_agent,
-                  machine_agent],
+                  machine_agent,
+                  demand_agent],
 
 
   

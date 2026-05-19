@@ -11,8 +11,8 @@ from fastapi import APIRouter
 router = APIRouter()
 load_dotenv()
 
-ADK_BASE_URL = os.getenv("ADK_BASE_URL")
-# ADK_URL = "https://ai-chatbot.mobillor.net/dev_api/run"
+# ADK_BASE_URL = os.getenv("ADK_BASE_URL")
+ADK_BASE_URL = "https://ai-chatbot.mobillor.net/dev_api/run"
 
 # HTTP client
 client = httpx.AsyncClient(timeout=60.0)
@@ -22,7 +22,7 @@ token_store = {}
 
 # ---------------------------------------------------
 #  TOKEN TRACKING 
-# ---------------------------------------------------
+# ---------------------------------------------------   
 
 
 
@@ -75,7 +75,7 @@ async def track_tokens(raw_payload, userId, sessionId):
 # ---------------------------------------------------
 #  PROXY RUN API
 # ---------------------------------------------------
-@router.post("/proxy/run")
+@router.post("/dev/proxy/run")
 async def proxy_run(request: Request):
     try:
         payload = await request.json()
@@ -123,3 +123,54 @@ async def proxy_run(request: Request):
 
 
 
+
+# from fastapi import Request
+# from fastapi.responses import JSONResponse
+# import httpx
+# import os
+# from dotenv import load_dotenv
+# from fastapi import APIRouter
+
+# router = APIRouter()
+# load_dotenv()
+
+# ADK_BASE_URL = "https://ai-chatbot.mobillor.net/dev_api"
+
+# # HTTP client
+# client = httpx.AsyncClient(timeout=60.0)
+
+
+# # ---------------------------------------------------
+# #  PROXY RUN API
+# # ---------------------------------------------------
+# @router.post("/dev/proxy/run")
+# async def proxy_run(request: Request):
+#     try:
+#         payload = await request.json()
+
+#         # Step 1: Call ADK
+#         response = await client.post(
+#             ADK_BASE_URL,
+#             json=payload,
+#             headers={"Content-Type": "application/json"}
+#         )
+
+#         raw_text = response.text
+
+#         # Step 2: Return response
+#         try:
+#             return JSONResponse(
+#                 content=response.json(),
+#                 status_code=response.status_code
+#             )
+#         except Exception:
+#             return JSONResponse(
+#                 content={"raw": raw_text},
+#                 status_code=response.status_code
+#             )
+
+#     except Exception as e:
+#         return JSONResponse(
+#             content={"error": str(e)},
+#             status_code=500
+#         )

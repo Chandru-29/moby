@@ -1,40 +1,42 @@
+
+
 sources:
   my-mssql-source:
     kind: mssql
-    host: 13.127.102.100
+    host: 3.109.55.223
     port: 1433
     database: acp_swms
     user: sa
     password: "Mobillor@2021"
 
+
 tools:
   search-items:
     kind: mssql-sql
     source: my-mssql-source
-    description: Search for items based on item code or description.
+    description: Search for items
     parameters:
       - name: name
         type: string
-        description: The name of the item.
-    statement: SELECT * FROM dbo.ITEM WHERE itemCode LIKE '%' + @name + '%' OR itemDescription LIKE '%' + @name + '%';
+        description: item name
+    statement: >
+      SELECT * FROM dbo.ITEM
+      WHERE itemCode LIKE '%' + @name + '%'
+      OR itemDescription LIKE '%' + @name + '%';
 
   execute-sql:
     kind: mssql-sql
     source: my-mssql-source
-    description: Execute any safe (read-only) SQL query dynamically on MSSQL.
+    description: read only query
     parameters:
       - name: query
         type: string
-        description: The SQL query to execute. Must start with SELECT.
-    statement: |
+        description: select query
+    statement: >
       DECLARE @stmt NVARCHAR(MAX) = @query;
-      -- Still executes a batch; rely on app-side guards to ensure single, read-only statements
       EXEC sp_executesql @stmt;
 
-
 toolsets:
-
   sql-toolset:
-    - execute-sql 
     - search-items
-
+    - execute-sql
