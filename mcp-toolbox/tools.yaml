@@ -1,0 +1,42 @@
+
+
+sources:
+  my-mssql-source:
+    kind: mssql
+    host: 3.109.55.223
+    port: 1433
+    database: acp_swms
+    user: sa
+    password: "Mobillor@2021"
+
+
+tools:
+  search-items:
+    kind: mssql-sql
+    source: my-mssql-source
+    description: Search for items
+    parameters:
+      - name: name
+        type: string
+        description: item name
+    statement: >
+      SELECT * FROM dbo.ITEM
+      WHERE itemCode LIKE '%' + @name + '%'
+      OR itemDescription LIKE '%' + @name + '%';
+
+  execute-sql:
+    kind: mssql-sql
+    source: my-mssql-source
+    description: read only query
+    parameters:
+      - name: query
+        type: string
+        description: select query
+    statement: >
+      DECLARE @stmt NVARCHAR(MAX) = @query;
+      EXEC sp_executesql @stmt;
+
+toolsets:
+  sql-toolset:
+    - search-items
+    - execute-sql

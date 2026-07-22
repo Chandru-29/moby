@@ -9,6 +9,7 @@ venv/
 .venv/
 env/
 .env/
+myenv/
 
 # Editor/IDE specific files
 .vscode/
@@ -33,3 +34,10 @@ htmlcov/
 *.log
 *.sqlite3
 *.db
+
+#Toolbox specific
+mcp-toolbox/toolbox.exe
+
+#dependency directories
+requirements.txt
+information.txt
