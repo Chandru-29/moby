@@ -2,14 +2,13 @@ from google.adk.agents.llm_agent import Agent
 from google.adk.tools.agent_tool import AgentTool
 from toolbox_core import ToolboxSyncClient
 
-from chat_boat_sql.analytics_agent import analytics_agent
 from chat_boat_sql.warehouse_agent import warehouse_agent
 from rag_service.rag_tool import retrieve_knowledge
 from chat_boat_sql.warehouse_agent import warehouse_agent
 
 
 root_agent = Agent(
-    model="gemini-2.5-flash-lite",
+    model="gemini-3.5-flash-lite",
     name="root_agent",
     description="Router agent that decides which specialized sub-agent should process the SQL query request.",
    instruction='''
@@ -33,6 +32,14 @@ If the query mentions ANY of:
         - quantity
         - batch
         - lot
+        - pickuplist
+        - piv
+        - filling
+        - revalidation
+        - movement
+        - quality
+        - stainer
+        - asset
 
 YOU MUST:
 - Call `warehouse_agent`

@@ -76,11 +76,11 @@ mobillor-ai-agents/
 
 ### `api-proxy/` — FastAPI Proxy Layer
 
-| File                     | Purpose                                                                                                                 |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| File                   | Purpose                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `main.py`              | Main FastAPI app. Proxies requests to the remote ADK backend and manages session lifecycle (create, list, get, delete). |
-| `run_api.py`           | Handles`/dev/proxy/run` — forwards user messages to ADK, tracks token usage in background.                           |
-| `db.py`                | MSSQL connection (pyodbc). Provides`upsert_token_usage()` for tracking API token consumption per user/session.        |
+| `run_api.py`           | Handles`/dev/proxy/run` — forwards user messages to ADK, tracks token usage in background.                              |
+| `db.py`                | MSSQL connection (pyodbc). Provides`upsert_token_usage()` for tracking API token consumption per user/session.          |
 | `create_session.py`    | Creates a new session for a user and app.                                                                               |
 | `get_session.py`       | Retrieves an existing session.                                                                                          |
 | `list_session.py`      | Lists all sessions for a user and app.                                                                                  |
@@ -89,62 +89,62 @@ mobillor-ai-agents/
 
 ### `apps/` — Web Interface
 
-| File             | Purpose                                                                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| File           | Purpose                                                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `web_agent.py` | Streamlit chat interface. Auto-creates sessions, displays chat history, sends messages to the local ADK server, and renders SQL results as DataFrames. |
 
 ### `archi_flow/` — Architecture Flow Agents
 
-| File            | Purpose                                                                                               |
-| --------------- | ----------------------------------------------------------------------------------------------------- |
-| `agent.py`    | Root router agent that classifies intent and delegates warehouse/ERP queries.                         |
-| `wh_agent.py` | Warehouse SQL generator agent with full WMS schema embedded. Generates read-only MSSQL queries.       |
+| File          | Purpose                                                                                             |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| `agent.py`    | Root router agent that classifies intent and delegates warehouse/ERP queries.                       |
+| `wh_agent.py` | Warehouse SQL generator agent with full WMS schema embedded. Generates read-only MSSQL queries.     |
 | `tool_box.py` | FastAPI endpoint (`/execute-query`) that validates SQL is SELECT-only and executes via MCP Toolbox. |
 
 ### `chat_boat_sql/` — SQL Chatbot with RAG
 
-| File                   | Purpose                                                                                                      |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| File                 | Purpose                                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `agent.py`           | Root router agent that delegates warehouse queries to the warehouse agent.                                   |
 | `warehouse_agent.py` | SQL expert agent that always calls RAG before generating SQL. Uses MCP Toolbox for execution.                |
 | `analytics_agent.py` | Advanced analytics agent for stock analysis, demand forecasting, picklist efficiency, and material planning. |
 
 ### `demo_agents/` — Multi-Domain Demo
 
-| File                 | Purpose                                                                                     |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| `agent.py`         | Root router that delegates to domain sub-agents based on intent keywords.                   |
+| File               | Purpose                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| `agent.py`         | Root router that delegates to domain sub-agents based on intent keywords.                  |
 | `pharma_agent.py`  | Pharmaceutical sales analytics — primary/secondary sales, scheme analysis, product trends. |
 | `machine_agent.py` | Process monitoring — queries Airflow, FanSpeed, Temperature, Weight data.                  |
 | `berger_agent.py`  | Demand analytics — item/location demand forecasting.                                       |
 
 ### `ocr_agent/` — Document OCR Pipeline
 
-| File                                   | Purpose                                                                                                               |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `agent.py`                           | Gemini-based OCR agent for text extraction from images.                                                               |
+| File                                 | Purpose                                                                                                           |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `agent.py`                           | Gemini-based OCR agent for text extraction from images.                                                           |
 | `process_document.py`                | Full pipeline orchestrator: OCR → field extraction → table reconstruction → LLM structuring → merged JSON output. |
-| `structure_document.py`              | Uses Gemini 2.5 Pro to convert raw OCR text into structured JSON.                                                     |
-| `parse_table.py`                     | Parses HTML tables (BeautifulSoup) into JSON.                                                                         |
-| `extraction/extract_fields.py`       | Regex-based field extraction from OCR text.                                                                           |
-| `extraction/layout_reconstructor.py` | Reconstructs document layout from bounding boxes.                                                                     |
-| `parsing/markdown_table_parser.py`   | Parses markdown-formatted tables from OCR output.                                                                     |
+| `structure_document.py`              | Uses Gemini 2.5 Pro to convert raw OCR text into structured JSON.                                                 |
+| `parse_table.py`                     | Parses HTML tables (BeautifulSoup) into JSON.                                                                     |
+| `extraction/extract_fields.py`       | Regex-based field extraction from OCR text.                                                                       |
+| `extraction/layout_reconstructor.py` | Reconstructs document layout from bounding boxes.                                                                 |
+| `parsing/markdown_table_parser.py`   | Parses markdown-formatted tables from OCR output.                                                                 |
 
 ### `rag_service/` — RAG Knowledge Service
 
-| File                 | Purpose                                                                                                                             |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `main.py`          | FastAPI endpoint (`POST /retrieve`) — accepts a query and returns relevant knowledge chunks.                                     |
-| `embedding.py`     | Text embeddings using`sentence-transformers/all-MiniLM-L6-v2`.                                                                    |
-| `ingest.py`        | Reads markdown from`knowledge/`, smart-chunks by headers, extracts metadata, embeds, and stores in ChromaDB.                      |
+| File               | Purpose                                                                                                                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `main.py`          | FastAPI endpoint (`POST /retrieve`) — accepts a query and returns relevant knowledge chunks.                                       |
+| `embedding.py`     | Text embeddings using`sentence-transformers/all-MiniLM-L6-v2`.                                                                     |
+| `ingest.py`        | Reads markdown from`knowledge/`, smart-chunks by headers, extracts metadata, embeds, and stores in ChromaDB.                       |
 | `retriever.py`     | Smart retrieval — resolves intent to tables, metadata-filtered vector search, classifies docs by type, assembles balanced context. |
-| `rag_tool.py`      | HTTP client that calls the RAG service and formats retrieved knowledge for agent use.                                               |
-| `vectorr_store.py` | ChromaDB collection setup and management.                                                                                           |
+| `rag_tool.py`      | HTTP client that calls the RAG service and formats retrieved knowledge for agent use.                                              |
+| `vectorr_store.py` | ChromaDB collection setup and management.                                                                                          |
 
 ### `mcp-toolbox/` — SQL Execution Layer
 
-| File           | Purpose                                                                                                                                                     |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| File         | Purpose                                                                                                                                               |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tools.yaml` | Defines MSSQL data source and tools:`search-items` (parameterized item search) and `execute-sql` (dynamic query execution). Bundled as `sql-toolset`. |
 
 ---
@@ -199,6 +199,7 @@ pip install -r requirements.txt
    cd mcp-toolbox
    ./toolbox.exe  # or appropriate binary for your OS
    ```
+
 3. Ingest knowledge into ChromaDB:
 
    ```bash
@@ -237,3 +238,5 @@ uvicorn embedding_service:app --port 8002
 ## License
 
 Proprietary — Mobillor Technologies
+
+python -m uvicorn api-proxy.main:app --port 8000 --reload
