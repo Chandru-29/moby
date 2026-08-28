@@ -20,7 +20,7 @@ BASE_ADK_URL = "https://ai-chatbot.mobillor.net/dev_api"
 ADK_RUN_URL = f"{BASE_ADK_URL}/run"
 
 # HTTP client
-client = httpx.AsyncClient(timeout=60.0)
+client = httpx.AsyncClient(timeout=90.0)
 
 
 # ---------------------------------------------------

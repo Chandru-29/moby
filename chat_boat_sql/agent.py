@@ -1,103 +1,85 @@
 from google.adk.agents.llm_agent import Agent
 from google.adk.tools.agent_tool import AgentTool
-from toolbox_core import ToolboxSyncClient
+# from toolbox_core import ToolboxSyncClient
 
-from chat_boat_sql.warehouse_agent import warehouse_agent
+# from chat_boat_sql.warehouse_agent import warehouse_agent
 from rag_service.rag_tool import retrieve_knowledge
-from chat_boat_sql.warehouse_agent import warehouse_agent
+# from chat_boat_sql.warehouse_agent import warehouse_agent
+from chat_boat_sql.warehouse_agent import get_warehouse_agent
+
+
+
+warehouse_agent_instance = get_warehouse_agent("default warehouse query")
+
+
+
 
 
 root_agent = Agent(
     model="gemini-3.5-flash-lite",
     name="root_agent",
     description="Router agent that decides which specialized sub-agent should process the SQL query request.",
-   instruction='''
-            You are the primary conversational agent. Your role is to analyze the user's intent.
-            1. **Greeting & Conversation**: If the user's input is a greeting (like "hi", "hello"), general chat, or a question about your capabilities, you **MUST NOT** use any tools. Simply respond conversationally.
-       
-            # If someone asks "Who are you", or any thing related reply-> "I am MOBY- Your personal agent" and if the query is "who developed you?" reply-> "I am Developed by Harsh" and if the query is "for whom you work?" reply -> "I work for MOBILLOR TECHNOLOGIES.".
-            # Your ONLY responsibility is to analyze the user's intent and delegate the query to the correct sub-agent.
+    instruction="""
+    You are the primary conversational assistant (MOBY - Your personal agent, developed by MOBILLOR TECHNOLOGIES).
+    
+    Follow these strict rules:
+    1. **General Chat & Greetings**: If the user says hi, hello, asks for your name, or talks casually, reply conversationally yourself. Do NOT use any tools.
+    2. **Warehouse / ERP Data Queries**: If the query is related to inventory, stock, picklist, GRN, warehouse, items, locations, or database records, you MUST delegate it to the `warehouse_agent`. Pass the full user query to it.
+    """,
 
-           2. **Delegation**: -  
-                                                               
-                                   WAREHOUSE / ERP DATA
-If the query mentions ANY of:
-        - GRN
-        - picklist
-        - inventory
-        - stock
-        - warehouse
-        - location
-        - item
-        - quantity
-        - batch
-        - lot
-        - pickuplist
-        - piv
-        - filling
-        - revalidation
-        - movement
-        - quality
-        - stainer
-        - asset
+    sub_agents=[warehouse_agent_instance]
+        #  sub_agents=[ pharma_agent],
+        #  sub_agents=[ warehouse_agent],
+        #  sub_agents=[ wh_agent],
 
-YOU MUST:
-- Call `warehouse_agent`
-- Pass the FULL ORIGINAL USER QUERY
-- RETURN ONLY the tool call
-- STOP
-
-            3. **Security**: You are completely unaware of the database schema and cannot generate SQL yourself. Your sole function is delegation for data retrieval or conversational responses.
-            4. **SQL Information**: whenever you use distinct word in the query, always use it after select word only.
-            5. **Never** Show the sql query whethere it is asked or not.
-            6.  
-                   
-           
-
-        ''',
-
- 
-    #  sub_agents=[ pharma_agent],
-     sub_agents=[ warehouse_agent],
-    #  sub_agents=[ wh_agent],
-
-    #  sub_agents =[analytics_agent],
-    #  tools=[   
-    #     *tools  
-    # ],
-        
-      
+        #  sub_agents =[analytics_agent],
+        #  tools=[   
+        #     *tools  
+        # ],    
 )
-
-
-
-
-
-
-def handle_query(user_query):
-
-    routed = root_agent.generate(user_query)
-
-    knowledge = retrieve_knowledge(user_query)
-
-    if not knowledge:
-        return "No schema found"
-
-    knowledge_text = "\n\n".join(knowledge)
-
-
-    prompt = f"""
-You MUST ONLY use the following database knowledge:
-
-{knowledge_text}
-
-User Query:
-{user_query}
-"""
-
-    response = warehouse_agent.generate(prompt)
-
+def handle_query(user_query: str):
+    """
+    Called during runtime. It dynamically updates the warehouse agent instance 
+    based on the exact user query to ensure token optimization and dynamic rules.
+    """
+    #Step 1: Create fresh dynamic warehouse agent based on current user query 
+    dynamic_wh_agent = get_warehouse_agent(user_query)
+    
+    # Step 2: Update the sub_agents list at runtime 
+    root_agent.sub_agents = [dynamic_wh_agent]
+    
+    # Step 3: Generate response through the root agent
+    response = root_agent.generate(user_query)
     return response.text
+
+
+
+
+
+# def handle_query(user_query):
+
+#     routed = root_agent.generate(user_query)
+
+#     knowledge = retrieve_knowledge(user_query)
+
+#     if not knowledge:
+#         return "No schema found"
+
+#     knowledge_text = "\n\n".join(knowledge)
+
+
+#     prompt = f"""
+# You MUST ONLY use the following database knowledge:
+
+# {knowledge_text}
+
+# User Query:
+# {user_query}
+# """
+
+#     response = warehouse_agent.generate(prompt)
+
+#     return response.text
 
 
 

@@ -444,41 +444,6 @@ checker
 charged
 source
 
----
-
-# TABLE: pickuplist
-
-TYPE: schema
-
-COLUMNS:
-id (PK)
-plant
-pickupListCode (UNIQUE)
-documentType
-documentNumber
-lineNumber
-srNo
-materialCode
-qty
-uom
-source
-destination
-status
-cd
-assignedUser
-pickupStartTime
-pickupEndTime
-resourceId
-ud
-prdKittingStatus
-officer
-storeUserAllocationTime
-materialReturnUser
-forceClosed
-forceClosedTime
-
----
-
 # TABLE: ss_picklist
 
 TYPE: schema

@@ -16,10 +16,10 @@ router = APIRouter()
 load_dotenv()
 
 # ADK_BASE_URL = os.getenv("ADK_BASE_URL")
-ADK_BASE_URL = "https://ai-chatbot.mobillor.net/dev_api/run"
+ADK_BASE_URL = "https://dlzfnf88-8010.inc1.devtunnels.ms/execute-query"
 
 # HTTP client
-client = httpx.AsyncClient(timeout=60.0)
+client = httpx.AsyncClient(timeout=90.0)
 
 # In-memory store (Node-RED global equivalent)
 token_store = {}
